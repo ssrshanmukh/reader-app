@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176fc1"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<title>Side-by-side Reader</title>
+<style>
+:root{color-scheme:light dark;--bg:#f4f4f1;--sf:#fff;--ink:#222;--mu:#777;--ln:#e3e2de;--ac:#176fc1;--as:#e6f1fc;--dg:#c84237;--g:10px;--minw:280px}
+@media(prefers-color-scheme:dark){:root{--bg:#161616;--sf:#212121;--ink:#f2f2f0;--mu:#aaa;--ln:#383735;--ac:#8cc5ff;--as:#243648;--dg:#ff8174}}
+@media(max-width:600px){:root{--minw:150px;--g:6px}}
+*{box-sizing:border-box}[hidden]{display:none!important}html,body{height:100%;margin:0}
+body{overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:manipulation}
+.app{height:100dvh;display:flex;flex-direction:column;gap:8px;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.top h1{font-size:17px;margin:0;font-weight:650}.top small{color:var(--mu);margin-left:8px;font-size:11px}
+.bar{display:flex;gap:5px}
+button{font:inherit;color:inherit;cursor:pointer}
+.b{height:36px;min-width:36px;padding:0 10px;border:1px solid var(--ln);border-radius:9px;background:var(--sf);font-weight:600;transition:background .15s,transform .1s}
+.b:hover:not(:disabled){background:var(--as);border-color:var(--ac)}.b:active{transform:scale(.96)}.b:disabled{opacity:.4;cursor:default}
+@media(max-width:600px){.lb{display:none}}
+#cols{flex:1;min-height:0;display:grid;grid-auto-flow:column;grid-template-rows:minmax(0,1fr);gap:var(--g);overflow-x:auto;overflow-y:hidden;touch-action:pan-x pan-y pinch-zoom;
+grid-auto-columns:max(var(--minw),calc((100% - (var(--n) - 1)*var(--g))/var(--n)))}
+.col{background:var(--sf);border:1px solid var(--ln);border-radius:12px;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+.col.over{outline:2px dashed var(--ac);outline-offset:-3px}
+.col header{display:flex;align-items:center;gap:2px;padding:4px 4px 4px 10px;border-bottom:1px solid var(--ln)}
+.t{flex:1;min-width:0;border:0;background:none;color:inherit;font:650 13px system-ui;padding:6px 2px;border-radius:6px}.t:focus{outline:2px solid var(--ac)}
+.i{width:30px;height:30px;border:0;border-radius:7px;background:none;color:var(--mu);font-size:15px;flex:none}.i:hover{background:var(--as);color:var(--ac)}.i.d:hover{color:var(--dg)}
+.sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom;scrollbar-width:thin}
+.list{position:relative;min-height:100%}.orig .list{width:max-content;min-width:100%}
+.list:empty::before{content:"Drop images here, or tap ＋";display:grid;place-items:center;min-height:120px;color:var(--mu);padding:16px;text-align:center}
+.it{position:relative;width:100%;background:color-mix(in srgb,var(--mu) 12%,transparent);line-height:0}
+.it img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;cursor:zoom-in}
+.it.tx{line-height:1.5;background:none;border-bottom:1px solid var(--ln);padding:6px 8px}.orig .tx{width:min(100vw,420px)}
+.it textarea{width:100%;border:0;background:none;color:inherit;font:15px/1.5 system-ui;resize:none;overflow:hidden;padding:4px;outline:none;display:block}
+.it .x{position:absolute;top:6px;right:6px;width:30px;height:30px;border:0;border-radius:8px;background:color-mix(in srgb,var(--sf) 90%,transparent);box-shadow:0 1px 5px #0003;opacity:.0;transition:opacity .15s;line-height:1}
+.it:hover .x,.it:focus-within .x{opacity:1}.x:hover{color:var(--dg)}@media(hover:none){.it .x{opacity:.75}}
+.it.drag{opacity:.4}.it.cue{box-shadow:inset 0 4px 0 var(--ac)}.it.cue.aft{box-shadow:inset 0 -4px 0 var(--ac)}
+#v{position:fixed;inset:0;z-index:30;background:#0b0b0bf2;color:#fff;display:grid;grid-template-rows:auto 1fr;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#v[hidden]{display:none}.vb{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px}.vb span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;opacity:.8}
+.vb button{width:40px;height:40px;border:1px solid #fff4;border-radius:9px;background:#fff1;color:#fff;font-size:18px}.vb #vz{display:inline-block;min-width:48px;text-align:center;font-size:12px}
+#vs{overflow:hidden;display:grid;place-items:center;touch-action:none}#vm{max-width:100%;max-height:100%;transform-origin:center;user-select:none;-webkit-user-drag:none}
+dialog{border:1px solid var(--ln);border-radius:14px;background:var(--sf);color:var(--ink);width:min(92vw,380px);padding:16px}dialog::backdrop{background:#0006}
+dialog h2{margin:0 0 4px;font-size:16px}dialog p{margin:0 0 10px;color:var(--mu);font-size:12px}dialog .b{display:block;width:100%;margin-top:6px;text-align:left;height:42px}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;border-radius:10px;padding:9px 14px;z-index:40;display:flex;gap:12px;align-items:center;box-shadow:0 4px 16px #0005}
+#toast[hidden]{display:none}#toast button{border:0;background:none;color:#8cc5ff;font-weight:700}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.pt{display:flex;align-items:center;gap:6px;min-width:0}.pt h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top small{white-space:nowrap}
+#hv{display:none;flex:1;min-height:0;overflow:auto}.app[data-v=home] #hv{display:block}.app[data-v=home] #cols,.app[data-v=home] #home,.app[data-v=home] #menu{display:none}
+.hh{display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px}.hh h2{margin:0;font-size:18px}
+#pl{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}#pl:empty{display:none}
+.pc{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;transition:border-color .15s,transform .1s}.pc:hover{border-color:var(--ac)}.pc:active{transform:scale(.98)}
+.pc div{flex:1;min-width:0}.pc b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}.pc small{color:var(--mu)}
+.mn{position:fixed;z-index:50;background:var(--sf);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 24px #0004;padding:4px;min-width:200px}
+.mn button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:8px}.mn button:hover{background:var(--as)}.mn .dg{color:var(--dg)}
+#fl,#pe{color:var(--mu);font-size:12px;margin:12px 2px}#fix{border-color:var(--dg);color:var(--dg)}.app[data-v=proj] #hm{display:none}
+dialog input{width:100%;height:40px;border:1px solid var(--ln);border-radius:9px;background:var(--bg);color:inherit;padding:0 10px;font:inherit}
+</style></head><body>
+<main class="app">
+<div class="top"><div class="pt"><button class="b" id="home" title="All projects" aria-label="All projects">‹</button><h1 id="pn">Side-by-side Reader</h1><button class="b" id="menu" title="Project menu" aria-label="Project menu">⋮</button></div><span style="display:flex;align-items:center;gap:8px"><button class="b" id="fix" hidden>📁 Reconnect folder</button><small id="state">Loading…</small></span></div>
+<div id="cols"></div>
+<div id="hv"><div class="hh"><h2>Projects</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="b" id="ib" hidden>⬇ Install app</button><button class="b" id="np">＋ New project</button><button class="b" id="hm" title="More" aria-label="More">⋮</button></span></div><div id="pl"></div><p id="pe" hidden>No projects yet. Tap “＋ New project”, or ⋮ → “Add project zip files”.</p><p id="fl"></p></div></main>
+<div id="v" hidden><div class="vb"><span id="vn"></span><span><button id="vp" aria-label="Previous">‹</button><button id="vo" aria-label="Zoom out">−</button><span id="vz">100%</span><button id="vi" aria-label="Zoom in">＋</button><button id="vq" aria-label="Next">›</button><button id="vc" aria-label="Close">✕</button></span></div><div id="vs"><img id="vm" alt=""></div></div>
+<dialog id="sh"><h2>Share</h2><p>Opens your phone or computer’s share sheet. Original files are sent, never compressed.</p><div id="shb"></div><button class="b" id="shx" style="text-align:center;margin-top:10px">Close</button></dialog>
+<div id="toast" hidden><span id="tm"></span><button id="tu">Undo</button></div>
+<dialog id="nd"><h2 id="nt"></h2><input id="ni" maxlength="40" aria-label="Project name"><div style="display:flex;gap:6px;margin-top:10px"><button class="b" id="nc" style="text-align:center">Cancel</button><button class="b" id="no" style="text-align:center;background:var(--ac);color:#fff;border-color:var(--ac)">OK</button></div></dialog>
+<input type="file" id="fp" accept="image/*" multiple hidden><input type="file" id="zp" accept=".zip,application/zip,application/x-zip-compressed" multiple hidden>
+<dialog id="sd"><h2 id="sdt">Where should your projects be stored?</h2><p id="sdp"></p><div id="spath" style="padding:10px;border:1px dashed var(--ln);border-radius:9px;margin-bottom:6px;word-break:break-all">No folder chosen</div><button class="b" id="sch" style="background:var(--ac);color:#fff;border-color:var(--ac);text-align:center">📁 Choose storage folder…</button><button class="b" id="sset" hidden>Set path</button><button class="b" id="sskip" hidden>Continue without a folder</button><button class="b" id="scx" hidden style="text-align:center">Cancel</button></dialog>
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
+const mk=t=>({id:uid(),title:t,mode:'fit',ids:[]});
+let dirH=null,mode='',dirtyP=new Set,goneF=new Set,dw=false,db,items=new Map,projs=[],st=null,view='home',past=[],fut=[],urls=new Map,io,pick=null,ready=false,dirty=new Set,gone=new Set,saveT,gcT,mute=0,sT,drag=null,ip=null;
+const root=$('#cols'),lab=$('#state'),col=id=>st.cols.find(c=>c.id===id);
+const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const url=id=>{let u=urls.get(id);if(!u){u=URL.createObjectURL(items.get(id).blob);urls.set(id,u)}return u};
+function toast(m,undoFn){$('#tm').textContent=m;const t=$('#toast');t.hidden=false;$('#tu').hidden=!undoFn;$('#tu').onclick=()=>{undoFn();t.hidden=true};clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4000)}
+/* persistence */
+function save(q){if(st&&!q){st.u=Date.now();dirtyP.add(st.id)}lab.textContent='Saving…';clearTimeout(saveT);saveT=setTimeout(flush,300);}
+async function flush(){if(!db){lab.textContent='Saved in this session';diskFlush();return}try{const tx=db.transaction(['k','items'],'readwrite'),s=tx.objectStore('items');tx.objectStore('k').put({list:projs,cur:st?.id||null},'projects');for(const id of dirty){const i=items.get(id);if(i)s.put(i)}dirty.clear();for(const id of gone)s.delete(id);gone.clear();await new Promise((ok,no)=>{tx.oncomplete=ok;tx.onerror=tx.onabort=()=>no(tx.error)});lab.textContent=dirH?'Saving to folder…':'Saved on this device'}catch{lab.textContent='Could not save';return}diskFlush()}
+function gc(){const ref=new Set(projs.flatMap(p=>p.cols.flatMap(c=>c.ids)));for(const s of [...past,...fut])for(const c of JSON.parse(s))c.ids.forEach(i=>ref.add(i));for(const id of [...items.keys()])if(!ref.has(id)){items.delete(id);gone.add(id);const u=urls.get(id);if(u){URL.revokeObjectURL(u);urls.delete(id)}}if(gone.size)save()}
+/* history */
+function commit(fn){past.push(JSON.stringify(st.cols));if(past.length>50)past.shift();fut=[];fn();render();save();clearTimeout(gcT);gcT=setTimeout(gc,2000)}
+function undo(){if(!past.length)return;fut.push(JSON.stringify(st.cols));st.cols=JSON.parse(past.pop());render();save()}
+function redo(){if(!fut.length)return;past.push(JSON.stringify(st.cols));st.cols=JSON.parse(fut.pop());render();save()}
+/* scroll memory */
+function capture(){if(!ready||view!=='proj'||!st||!root.children.length)return;st.x=root.scrollLeft;for(const c of root.children){const sc=c.querySelector('.sc');for(const e of sc.firstChild.children){if(e.offsetTop+e.offsetHeight>sc.scrollTop+1){st.sc[c.dataset.id]={id:e.dataset.id,f:(sc.scrollTop-e.offsetTop)/(e.offsetHeight||1)};break}}}}
+function restore(){if(!st||view!=='proj')return;root.scrollLeft=st.x||0;for(const c of root.children){const a=st.sc[c.dataset.id],sc=c.querySelector('.sc'),e=a&&sc.firstChild.querySelector(`[data-id="${a.id}"]`);if(e)sc.scrollTop=e.offsetTop+a.f*e.offsetHeight}}
+root.addEventListener('scroll',()=>{if(!ready||Date.now()<mute)return;clearTimeout(sT);sT=setTimeout(()=>{capture();save(1)},200)},true);
+addEventListener('resize',()=>{mute=Date.now()+500;requestAnimationFrame(restore)});
+const leave=()=>{capture();flush()};addEventListener('pagehide',leave);document.addEventListener('visibilitychange',()=>{if(document.hidden)leave()});
+/* render */
+const fit=t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px'};
+function onIO(es){for(const e of es){const im=e.target.firstChild;if(e.isIntersecting){if(!im.src)im.src=url(e.target.dataset.id)}else im.removeAttribute('src')}}
+function itEl(c,id){const it=items.get(id);if(!it)return null;const e=document.createElement('div');e.className='it';e.dataset.id=id;e.draggable=true;
+if(it.type==='text'){e.classList.add('tx');const t=document.createElement('textarea');t.rows=1;t.placeholder='Write something…';t.value=it.text||'';t.draggable=false;t.oninput=()=>{it.text=t.value;dirty.add(id);fit(t);save()};e.append(t)}
+else{const w=it.w||4,h=it.h||3;e.style.aspectRatio=w+'/'+h;if(c.mode==='orig')e.style.width=w+'px';const im=new Image();im.alt=it.name||'';im.draggable=false;im.decoding='async';im.onerror=()=>{if(im.src)im.removeAttribute('src')};e.append(im);io.observe(e)}
+const x=document.createElement('button');x.className='x';x.dataset.a='del';x.setAttribute('aria-label','Remove');x.textContent='✕';e.append(x);return e}
+function colEl(c){const e=document.createElement('section');e.className='col'+(c.mode==='orig'?' orig':'');e.dataset.id=c.id;
+e.innerHTML='<header><input class="t" maxlength="40" aria-label="Column name"><button class="i" data-a="mode" title="Toggle fit width / original size">⤢</button><button class="i" data-a="img" title="Add images (originals)">＋</button><button class="i" data-a="txt" title="Add text">T</button><button class="i d" data-a="delcol" title="Delete column">🗑</button></header><div class="sc"><div class="list" role="list"></div></div>';
+const t=e.querySelector('.t');t.value=c.title;t.onchange=()=>{c.title=t.value.trim()||'Untitled';t.value=c.title;save()};t.onkeydown=k=>{if(k.key==='Enter')t.blur()};
+e.querySelector('.list').append(...c.ids.map(id=>itEl(c,id)).filter(Boolean));return e}
+function render(keep=true){if(keep)capture();if(!st)return;io?.disconnect();io=new IntersectionObserver(onIO,{rootMargin:'150% 0px'});root.style.setProperty('--n',st.cols.length);root.replaceChildren(...st.cols.map(colEl));root.querySelectorAll('textarea').forEach(fit);restore()}
+/* adding */
+const dims=f=>new Promise(r=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{r([i.naturalWidth||4,i.naturalHeight||3]);URL.revokeObjectURL(u)};i.onerror=()=>{r([4,3]);URL.revokeObjectURL(u)};i.src=u});
+async function addFiles(cid,files,at){files=[...files].filter(f=>f.type.startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|svg|avif|heic|heif)$/i.test(f.name));if(!files.length)return toast('Choose image files');const out=[];let n=0;
+for(const f of files){lab.textContent=`Adding ${++n}/${files.length}…`;const d=await dims(f),it={id:uid(),type:'img',name:f.name,blob:f,w:d[0],h:d[1]};items.set(it.id,it);dirty.add(it.id);out.push(it.id)}
+commit(()=>{const c=col(cid);if(c)c.ids.splice(at??c.ids.length,0,...out)})}
+function move(id,cid,at){const to=col(cid);let from=st.cols.find(c=>c.ids.includes(id));if(!from||!to)return;const i=from.ids.indexOf(id);if(from===to&&(at===i||at===i+1))return;commit(()=>{from.ids.splice(i,1);if(from===to&&i<at)at--;to.ids.splice(at,0,id)})}
+/* events */
+root.addEventListener('click',e=>{const b=e.target.closest('[data-a]'),cEl=e.target.closest('.col');if(!cEl){return}const c=col(cEl.dataset.id),a=b?.dataset.a;
+if(a==='img'){pick=c.id;$('#fp').click()}
+else if(a==='txt'){const it={id:uid(),type:'text',text:''};items.set(it.id,it);dirty.add(it.id);commit(()=>c.ids.push(it.id));const sc=cEl.isConnected?root.querySelector(`[data-id="${c.id}"] .sc`):null;const ta=root.querySelector(`[data-id="${c.id}"] .it:last-child textarea`);if(ta){ta.focus();if(sc)sc.scrollTop=sc.scrollHeight}}
+else if(a==='mode')commit(()=>c.mode=c.mode==='orig'?'fit':'orig');
+else if(a==='delcol'){if(st.cols.length<2)return toast('Keep at least one column');commit(()=>st.cols=st.cols.filter(x=>x!==c));toast('Column deleted',undo)}
+else if(a==='del'){const id=e.target.closest('.it').dataset.id;commit(()=>c.ids=c.ids.filter(x=>x!==id));toast('Removed',undo)}
+else if(e.target.tagName==='IMG'){const id=e.target.closest('.it').dataset.id;openV(c.ids.filter(i=>items.get(i)?.type==='img'),id)}});
+$('#fp').onchange=e=>{if(e.target.files.length&&pick)addFiles(pick,e.target.files);e.target.value=''};
+function addCol(){commit(()=>st.cols.push(mk('Column '+(st.cols.length+1))));root.scrollTo({left:root.scrollWidth,behavior:'smooth'})}
+document.addEventListener('keydown',e=>{if(!$('#v').hidden){if(e.key==='Escape')closeV();else if(e.key==='ArrowRight')vGo(1);else if(e.key==='ArrowLeft')vGo(-1);return}
+if((e.ctrlKey||e.metaKey)&&!/INPUT|TEXTAREA/.test(e.target.tagName)){const k=e.key.toLowerCase();if(k==='z'){e.preventDefault();e.shiftKey?redo():undo()}else if(k==='y'){e.preventDefault();redo()}}});
+/* drag & drop */
+const idxAt=(list,y)=>{let i=0;for(const c of list.children){const r=c.getBoundingClientRect();if(y<r.top+r.height/2)return i;i++}return i};
+const clr=()=>{document.querySelectorAll('.cue,.over,.drag').forEach(x=>x.classList.remove('cue','aft','over','drag'))};
+root.addEventListener('dragstart',e=>{const it=e.target.closest?.('.it');if(!it)return;drag=it.dataset.id;it.classList.add('drag');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',drag)});
+root.addEventListener('dragend',()=>{drag=null;clr()});
+root.addEventListener('dragover',e=>{const c=e.target.closest('.col');if(!c||!(drag||e.dataTransfer.types.includes('Files')))return;e.preventDefault();document.querySelectorAll('.cue,.over').forEach(x=>x.classList.remove('cue','aft','over'));c.classList.add('over');const l=c.querySelector('.list'),i=idxAt(l,e.clientY),t=l.children[i]||l.lastElementChild;if(t){t.classList.add('cue');if(!l.children[i])t.classList.add('aft')}});
+root.addEventListener('drop',e=>{const c=e.target.closest('.col');if(!c)return;e.preventDefault();const at=idxAt(c.querySelector('.list'),e.clientY),id=drag,fs=e.dataTransfer.files;clr();if(id)move(id,c.dataset.id,at);else if(fs.length)addFiles(c.dataset.id,fs,at)});
+/* viewer */
+const V=$('#v'),VM=$('#vm'),VS=$('#vs'),P=new Map;let vl=[],vi=0,vu,sc=1,tx=0,ty=0,pd=1,ps=1;
+function vT(){VM.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;$('#vz').textContent=Math.round(sc*100)+'%'}
+function vShow(i){vi=i;const it=items.get(vl[i]);if(vu)URL.revokeObjectURL(vu);vu=URL.createObjectURL(it.blob);VM.src=vu;$('#vn').textContent=it.name||'Image';sc=1;tx=ty=0;vT();$('#vp').disabled=i<1;$('#vq').disabled=i>=vl.length-1}
+function openV(l,id){vl=l;V.hidden=false;vShow(Math.max(0,l.indexOf(id)))}
+function closeV(){V.hidden=true;VM.removeAttribute('src');if(vu)URL.revokeObjectURL(vu);vu=null}
+const vGo=d=>{if(vl[vi+d])vShow(vi+d)},zb=k=>{sc=Math.max(1,Math.min(10,sc*k));if(sc===1)tx=ty=0;vT()},dist=()=>{const a=[...P.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1};
+$('#vc').onclick=closeV;$('#vp').onclick=()=>vGo(-1);$('#vq').onclick=()=>vGo(1);$('#vi').onclick=()=>zb(1.3);$('#vo').onclick=()=>zb(1/1.3);
+VS.addEventListener('wheel',e=>{e.preventDefault();zb(e.deltaY<0?1.15:1/1.15)},{passive:false});
+VS.onpointerdown=e=>{VS.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);if(P.size===2){pd=dist();ps=sc}};
+VS.onpointermove=e=>{const o=P.get(e.pointerId);if(!o)return;P.set(e.pointerId,[e.clientX,e.clientY]);if(P.size===2)sc=Math.max(1,Math.min(10,ps*dist()/pd));else if(sc>1){tx+=e.clientX-o[0];ty+=e.clientY-o[1]}if(sc===1)tx=ty=0;vT()};
+VS.onpointerup=VS.onpointercancel=e=>P.delete(e.pointerId);
+VS.ondblclick=()=>{sc=sc>1?1:2.5;tx=ty=0;vT()};V.onclick=e=>{if(e.target===VS)closeV()};
+/* share */
+async function shareIds(ids,title){const its=ids.map(i=>items.get(i)).filter(Boolean),files=its.filter(i=>i.type==='img').map(i=>new File([i.blob],i.name||'image',{type:i.blob.type||'image/jpeg'})),text=its.filter(i=>i.type==='text'&&i.text).map(i=>i.text).join('\n\n');
+if(!files.length&&!text)return toast('Nothing to share');const d={title};if(files.length)d.files=files;if(text)d.text=text;
+try{if(navigator.share&&(!files.length||navigator.canShare?.({files}))){await navigator.share(d);$('#sh').close()}else throw 0}catch(e){if(e&&e.name==='AbortError')return;files.forEach((f,k)=>{const a=document.createElement('a'),u=URL.createObjectURL(f);a.href=u;a.download=f.name;setTimeout(()=>{a.click();setTimeout(()=>URL.revokeObjectURL(u),3e4)},k*250)});toast('Sharing unavailable here — files downloaded');$('#sh').close()}}
+function shareP(p){const b=$('#shb');b.replaceChildren();const add=(t,ids)=>{const x=document.createElement('button');x.className='b';x.textContent=t;x.onclick=()=>shareIds(ids,t);b.append(x)};
+{const z=document.createElement('button');z.className='b';z.textContent='📦 Project as ZIP (opens in Reader)';z.onclick=()=>{$('#sh').close();shareZip(p)};b.append(z)}
+add('Images & text in '+p.name,p.cols.flatMap(c=>c.ids));p.cols.forEach(c=>c.ids.length&&add(`${c.title} · ${c.ids.length}`,c.ids));
+if(/^https?:/.test(location.protocol)&&navigator.share){const x=document.createElement('button');x.className='b';x.textContent='Share this app’s link';x.onclick=()=>navigator.share({title:document.title,url:location.href}).catch(()=>{});b.append(x)}
+$('#sh').showModal()}$('#shx').onclick=()=>$('#sh').close();
+/* install */
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#ib').hidden=false});const inst=async()=>{if(ip){ip.prompt();await ip.userChoice;ip=null;$('#ib').hidden=true}};addEventListener('appinstalled',()=>$('#ib').hidden=true);$('#ib').onclick=inst;
+if('serviceWorker'in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* projects */
+const app=$('.app');
+function ask(title,val='',must){return new Promise(ok=>{const d=$('#nd'),i=$('#ni');$('#nt').textContent=title;i.value=val;$('#nc').hidden=!!must;let done=false;const fin=v=>{if(done)return;done=true;d.close();ok(v)};$('#no').onclick=()=>fin(i.value.trim()||null);$('#nc').onclick=()=>fin(null);i.onkeydown=e=>{if(e.key==='Enter')fin(i.value.trim()||null)};d.oncancel=e=>{if(must)e.preventDefault();else fin(null)};d.showModal();i.focus();i.select()})}
+const newP=n=>{const p={id:uid(),name:n,cols:[mk('Column 1'),mk('Column 2')],x:0,sc:{},u:Date.now()};projs.unshift(p);dirtyP.add(p.id);save(1);return p};
+function openP(id){capture();st=projs.find(p=>p.id===id);past=[];fut=[];view='proj';app.dataset.v='proj';$('#pn').textContent=document.title=st.name;render(false);restore();save(1)}
+function goHome(){capture();st=null;past=[];fut=[];view='home';app.dataset.v='home';$('#pn').textContent=document.title='Side-by-side Reader';renderHome();save(1)}
+function renderHome(){const l=$('#pl');$('#pe').hidden=projs.length>0;l.replaceChildren(...projs.map(p=>{const n=p.cols.reduce((a,c)=>a+c.ids.length,0),e=document.createElement('div');e.className='pc';e.innerHTML='<div><b></b><small></small></div><button class="i" aria-label="Project menu">⋮</button>';e.querySelector('b').textContent=p.name;e.querySelector('small').textContent=`${p.cols.length} columns · ${n} items`;e.onclick=ev=>{if(!ev.target.closest('button'))openP(p.id)};e.querySelector('button').onclick=ev=>menu(ev.currentTarget,projMenu(p));return e}))}
+function dup(p){const c=JSON.parse(JSON.stringify(p));c.id=uid();c.name=p.name+' copy';c.sc={};c.u=Date.now();delete c.file;for(const k of c.cols){k.id=uid();k.ids=k.ids.map(id=>{const it=items.get(id);if(it?.type==='text'){const n={...it,id:uid()};items.set(n.id,n);dirty.add(n.id);return n.id}return id})}projs.unshift(c);dirtyP.add(c.id);save(1);view==='home'?renderHome():toast('Duplicated as “'+c.name+'”')}
+const projMenu=p=>[['Open',()=>openP(p.id)],['Rename',async()=>{const n=await ask('Rename project',p.name);if(n){p.name=n;p.u=Date.now();dirtyP.add(p.id);save(1);st===p?$('#pn').textContent=document.title=n:renderHome()}}],['Duplicate',()=>dup(p)],['Share…',()=>shareP(p)],['Save as zip file',()=>shareZip(p)],['Delete project',()=>{if(confirm(`Delete “${p.name}”? This can’t be undone.`)){projs=projs.filter(x=>x!==p);goneF.add(p.file||fname(p));dirtyP.delete(p.id);if(st===p)goHome();else renderHome();save();clearTimeout(gcT);gcT=setTimeout(gc,500)}},1]];
+const topMenu=()=>{const pm=projMenu(st).slice(1),del=pm.pop();return[['Add column',addCol],...(past.length?[['Undo',undo]]:[]),...(fut.length?[['Redo',redo]]:[]),...pm,...(ip?[['Install app',inst]]:[]),...(canDir()?[[dirH?'Change storage path…':'Set storage path…',changePath]]:[]),['All projects',goHome],del]};
+function menu(a,list){document.querySelector('.mn')?.remove();const m=document.createElement('div');m.className='mn';for(const[t,f,d]of list){const b=document.createElement('button');b.textContent=t;if(d)b.className='dg';b.onclick=()=>{m.remove();f()};m.append(b)}document.body.append(m);const r=a.getBoundingClientRect();m.style.top=Math.max(8,Math.min(r.bottom+4,innerHeight-m.offsetHeight-8))+'px';m.style.left=Math.max(8,Math.min(r.right-m.offsetWidth,innerWidth-m.offsetWidth-8))+'px';setTimeout(()=>addEventListener('pointerdown',function h(e){if(!m.contains(e.target)){m.remove();removeEventListener('pointerdown',h,true)}},true),0)}
+$('#menu').onclick=e=>menu(e.currentTarget,topMenu());$('#home').onclick=goHome;
+$('#np').onclick=async()=>{const n=await ask('New project','Project '+(projs.length+1));if(n)openP(newP(n).id)};
+/* zip (store-only writer, reader with deflate support) */
+const enc=t=>new TextEncoder().encode(t),dec=b=>new TextDecoder().decode(b);
+const CT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u=>{let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CT[(c^u[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0};
+async function makeZip(files){const parts=[],cd=[];let off=0;const d=new Date(),dt=((d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))&0xFFFF,dd=(((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate())&0xFFFF;
+for(const f of files){const data=f.data||new Uint8Array(await f.blob.arrayBuffer()),nm=enc(f.name),crc=crc32(data),sz=data.length;
+if(sz>0xFFFFFFFE||off>0xFFFFFFFE)throw new Error('Project too large for one zip');
+const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,dt,true);h.setUint16(12,dd,true);h.setUint32(14,crc,true);h.setUint32(18,sz,true);h.setUint32(22,sz,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+parts.push(h.buffer,nm,data);
+const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,dt,true);c.setUint16(14,dd,true);c.setUint32(16,crc,true);c.setUint32(20,sz,true);c.setUint32(24,sz,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+cd.push(c.buffer,nm);off+=30+nm.length+sz}
+let cs=0;for(const x of cd)cs+=x.byteLength;const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+return new Blob([...parts,...cd,e.buffer],{type:'application/zip'})}
+async function inflate(u){const ds=new DecompressionStream('deflate-raw');const w=ds.writable.getWriter();w.write(u).catch(()=>{});w.close().catch(()=>{});return new Uint8Array(await new Response(ds.readable).arrayBuffer())}
+function readZip(buf){const u=new Uint8Array(buf),v=new DataView(buf);let e=-1;for(let i=u.length-22;i>=Math.max(0,u.length-65558);i--)if(v.getUint32(i,true)===0x06054b50){e=i;break}
+if(e<0)throw new Error('Not a zip file');const n=v.getUint16(e+10,true);let p=v.getUint32(e+16,true);const m=new Map;
+for(let k=0;k<n;k++){if(v.getUint32(p,true)!==0x02014b50)throw new Error('Bad zip');const meth=v.getUint16(p+10,true),cs=v.getUint32(p+20,true),nl=v.getUint16(p+28,true),xl=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),lo=v.getUint32(p+42,true),name=dec(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+if(name.endsWith('/'))continue;
+m.set(name,async()=>{if(v.getUint32(lo,true)!==0x04034b50)throw new Error('Bad zip entry');const st=lo+30+v.getUint16(lo+26,true)+v.getUint16(lo+28,true),raw=u.subarray(st,st+cs);if(meth===0)return raw;if(meth===8)return inflate(raw);throw new Error('Unsupported zip method')})}
+return m}
+const MIME={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',bmp:'image/bmp',svg:'image/svg+xml',avif:'image/avif',heic:'image/heic',heif:'image/heif'};
+const safe=n=>(String(n).replace(/[\\/:*?"<>|\u0000-\u001f]/g,'_').replace(/^\.+/,'').trim().slice(0,60))||'project';
+const fname=p=>safe(p.name)+'-'+p.id.replace(/-/g,'').slice(0,8)+'.zip';
+async function projectZip(p){const meta={},files=[],seen=new Set;
+for(const c of p.cols)for(const id of c.ids){if(seen.has(id))continue;seen.add(id);const it=items.get(id);if(!it)continue;
+if(it.type==='text')meta[id]={type:'text',text:it.text||''};
+else{const ex=((it.name||'').match(/\.([a-z0-9]{1,5})$/i)||[])[1]||(it.blob.type||'').split('/')[1]||'bin',fn='images/'+id+'.'+ex.toLowerCase();meta[id]={type:'img',name:it.name||'',w:it.w,h:it.h,file:fn};files.push({name:fn,blob:it.blob})}}
+const pr={...p};delete pr.sc;delete pr.x;delete pr.file;
+files.unshift({name:'project.json',data:enc(JSON.stringify({app:'sbs-reader',v:1,project:pr,items:meta}))});return makeZip(files)}
+function dl(blob,name){const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3e4)}
+/* import */
+async function importProject(z,fromDisk,file){const d=JSON.parse(dec(await z.get('project.json')()));if(d.app!=='sbs-reader'||!d.project||!Array.isArray(d.project.cols))throw new Error('Not a Reader project');
+const P=d.project;if(typeof P.id!=='string'||!P.id)throw new Error('Bad project');const ex=projs.find(p=>p.id===P.id);
+if(ex&&(ex.u||0)>=(P.u||0))return{same:1,p:ex};
+const M=d.items||{},have=new Set;
+for(const id of Object.keys(M)){const m=M[id];if(m.type==='text'){items.set(id,{id,type:'text',text:String(m.text||'')});dirty.add(id);have.add(id)}
+else if(m.type==='img'&&z.has(m.file)){const by=await z.get(m.file)(),ex2=(m.file.split('.').pop()||'').toLowerCase();items.set(id,{id,type:'img',name:m.name||'',w:m.w||4,h:m.h||3,blob:new Blob([by],{type:MIME[ex2]||'application/octet-stream'})});dirty.add(id);have.add(id)}}
+P.name=String(P.name||'Project').slice(0,60);P.x=0;P.sc={};P.u=P.u||Date.now();
+P.cols=P.cols.map((c,i)=>({id:c.id||uid(),title:String(c.title||'Column '+(i+1)).slice(0,40),mode:c.mode==='orig'?'orig':'fit',ids:(Array.isArray(c.ids)?c.ids:[]).filter(i=>have.has(i))}));
+if(!P.cols.length)P.cols=[mk('Column 1')];
+if(fromDisk&&file)P.file=file;else delete P.file;
+if(ex){projs[projs.indexOf(ex)]=P;if(st===ex){st=P;past=[];fut=[]}}else projs.unshift(P);
+if(!fromDisk)dirtyP.add(P.id);return{n:1,p:P}}
+async function importBuf(buf,name,fromDisk){const z=readZip(buf);if(z.has('project.json'))return importProject(z,fromDisk,name);
+let n=0,same=0,p=null;for(const k of z.keys())if(/\.zip$/i.test(k)){const r=await importBuf((await z.get(k)()).slice().buffer,k.split('/').pop(),fromDisk);n+=r.n||0;same+=r.same||0;p=r.p||p}
+if(!n&&!same)throw new Error('No projects found');return{n,same,p}}
+async function importFiles(fs,open,fromDisk){let n=0,same=0,bad=0,p=null;
+for(const f of fs){try{lab.textContent='Importing '+f.name+'…';const r=await importBuf(await f.arrayBuffer(),f.name,fromDisk);n+=r.n||0;same+=r.same||0;p=r.p||p}catch(e){bad++;console.warn(e)}}
+if(n){clearTimeout(gcT);save(1)}lab.textContent=dirH?'Saved to folder':'Saved on this device';
+if(view==='home')renderHome();
+toast(n?`Imported ${n} project${n>1?'s':''}${bad?` · ${bad} file${bad>1?'s':''} skipped`:''}`:same?'Already up to date':bad?'Not a valid Reader project zip':'Nothing to import');
+if(n&&open&&p&&n===1)openP(p.id);return n}
+/* folder storage */
+const kset=async(k,v)=>{if(!db)return;try{const tx=db.transaction('k','readwrite');tx.objectStore('k').put(v,k);await new Promise((ok,no)=>{tx.oncomplete=ok;tx.onerror=tx.onabort=()=>no(tx.error)})}catch{}};
+const canDir=()=>typeof window.showDirectoryPicker==='function'&&!!window.isSecureContext;
+const hasPerm=async()=>{try{return(await dirH.queryPermission({mode:'readwrite'}))==='granted'}catch{return false}};
+const setFix=v=>{$('#fix').hidden=!v;if(v)lab.textContent='Folder access needed'};
+async function diskFlush(){if(!dirH||dw)return;dw=true;let bad=false,cur=null;
+try{if(!await hasPerm()){bad=true;setFix(true);return}
+while(dirtyP.size||goneF.size){for(const id of[...dirtyP]){cur=id;dirtyP.delete(id);const p=projs.find(x=>x.id===id);if(!p)continue;const nm=fname(p),blob=await projectZip(p),w=await(await dirH.getFileHandle(nm,{create:true})).createWritable();try{await w.write(blob);await w.close()}catch(e){try{await w.abort()}catch{}throw e}
+if(p.file&&p.file!==nm)goneF.add(p.file);p.file=nm;cur=null}
+for(const f of[...goneF]){goneF.delete(f);try{await dirH.removeEntry(f)}catch{}}}
+lab.textContent='Saved to '+dirH.name;setFix(false)}
+catch(e){bad=true;if(cur)dirtyP.add(cur);console.warn(e);lab.textContent='Could not write to folder';setFix(true)}
+finally{dw=false;if(!bad&&(dirtyP.size||goneF.size))setTimeout(diskFlush,200)}}
+$('#fix').onclick=async()=>{try{if(await dirH.requestPermission({mode:'readwrite'})==='granted'){projs.forEach(p=>dirtyP.add(p.id));setFix(false);diskFlush()}else toast('Permission not granted')}catch{toast('Could not reconnect — choose the folder again');runSetup(false)}};
+async function restoreFromFolder(){let fs=[];try{for await(const[n,h]of dirH.entries())if(h.kind==='file'&&/\.zip$/i.test(n)){const f=await h.getFile();Object.defineProperty(f,'__n',{value:n});fs.push(f)}}catch{return 0}
+let n=0;for(const f of fs){try{const r=await importBuf(await f.arrayBuffer(),f.__n,true);n+=r.n||0}catch(e){console.warn('skip',f.__n,e)}}return n}
+function runSetup(must){return new Promise(ok=>{const d=$('#sd');let done=false,busy=false;
+$('#sdt').textContent=must?'Where should your projects be stored?':'Storage folder';
+$('#sdp').textContent=canDir()?'Tap the button below. Your device’s folder picker opens; choose (or create) a folder and confirm. Every change is then saved there automatically as one .zip per project. Nothing goes to the cloud.':'This browser can’t save into a folder of your choice (Android Chrome and iPhone don’t allow it for web apps). Your projects are kept inside the app; use ⋮ → “Export all as zip” to keep copies in your own storage, and “Add project zip files” to bring them back.';
+$('#spath').textContent=dirH?'Current: '+dirH.name:'No folder chosen';$('#sch').hidden=!canDir();$('#sset').hidden=true;$('#sskip').hidden=canDir()||!must;$('#scx').hidden=must;
+const fin=v=>{if(done)return;done=true;d.close();ok(v)};
+$('#sch').onclick=async()=>{if(busy)return;let h;try{h=await showDirectoryPicker({id:'sbs-reader',mode:'readwrite'})}catch(e){if(e.name!=='AbortError')toast('That folder can’t be used — create a new folder and pick it');return}
+busy=true;try{try{if(await h.requestPermission({mode:'readwrite'})!=='granted'){toast('Permission needed to save in this folder');return}}catch{}
+$('#spath').textContent='✅ Storage folder: '+h.name;
+dirH=h;mode='folder';await kset('dir',h);await kset('setup','folder');setFix(false);lab.textContent='Reading folder…';const n=await restoreFromFolder();projs.forEach(p=>dirtyP.add(p.id));projs.sort((a,b)=>(b.u||0)-(a.u||0));save(1);fl();toast(`Storage set to “${h.name}”`+(n?` · found ${n} project${n>1?'s':''}`:''));fin(true)}finally{busy=false}};
+$('#sskip').onclick=async()=>{mode='manual';await kset('setup','manual');fl();lab.textContent='Saved on this device';fin(false)};
+$('#scx').onclick=()=>fin(false);d.oncancel=e=>{e.preventDefault();if(!must)fin(false)};d.showModal()})}
+/* change path: pick a new folder, move every project zip there, remove them from the old folder */
+async function changePath(){
+let h;try{h=await showDirectoryPicker({id:'sbs-reader',mode:'readwrite',...(dirH?{startIn:dirH}:{})})}catch(e){if(e.name!=='AbortError')toast('That folder can’t be used — create a new folder and pick it');return}
+const old=dirH;
+try{if(old&&await h.isSameEntry(old))return toast('That is already your storage folder')}catch{}
+try{if(await h.requestPermission({mode:'readwrite'})!=='granted')return toast('Permission needed to save in this folder')}catch{}
+if(!confirm(old?`Move all your projects to “${h.name}”?\n\nThe zip files will be copied there and then removed from “${old.name}”.`:`Save your projects in “${h.name}”?`))return;
+while(dw)await new Promise(r=>setTimeout(r,100));dw=true;
+const oldFiles=new Set([...goneF,...projs.map(p=>p.file).filter(Boolean)]),oldMap=new Map(projs.map(p=>[p.id,p.file])),names=new Map;
+lab.textContent='Moving projects…';
+try{dirH=h;await restoreFromFolder();
+for(const p of projs){const nm=fname(p),blob=await projectZip(p),fh=await h.getFileHandle(nm,{create:true}),w=await fh.createWritable();
+try{await w.write(blob);await w.close()}catch(e){try{await w.abort()}catch{}throw e}
+if((await fh.getFile()).size!==blob.size)throw new Error('Could not verify '+p.name);names.set(p.id,nm)}}
+catch(e){console.warn(e);dirH=old;for(const p of projs){if(oldMap.has(p.id)){const f=oldMap.get(p.id);f?p.file=f:delete p.file}else{delete p.file;dirtyP.add(p.id)}}
+dw=false;lab.textContent=old?'Saved to '+old.name:'Saved on this device';toast('Move failed — your files are still in the old folder');if(dirtyP.size||goneF.size)diskFlush();return}
+for(const p of projs)p.file=names.get(p.id);
+await kset('dir',h);await kset('setup','folder');mode='folder';
+let left=0;if(old){let ok=false;try{ok=(await old.queryPermission({mode:'readwrite'}))==='granted'||(await old.requestPermission({mode:'readwrite'}))==='granted'}catch{}
+for(const f of oldFiles){if(!ok){left++;continue}try{await old.removeEntry(f)}catch(e){if(e.name!=='NotFoundError')left++}}}
+goneF.clear();dw=false;setFix(false);save(1);fl();if(view==='home')renderHome();lab.textContent='Saved to '+h.name;
+toast(`Moved ${names.size} project${names.size===1?'':'s'} to “${h.name}”`+(left?` · ${left} old file${left>1?'s':''} couldn’t be removed from the old folder`:''));
+if(dirtyP.size)diskFlush()}
+const fl=()=>{$('#fl').textContent=dirH?'📁 Your projects are saved as zip files in: '+dirH.name:'Projects are stored inside this app. Use ⋮ → “Export all as zip” for a copy in your own storage.'};
+async function exportAll(){if(!projs.length)return toast('No projects yet');lab.textContent='Building zip…';try{const fs=[];for(const p of projs)fs.push({name:fname(p),blob:await projectZip(p)});dl(await makeZip(fs),'reader-projects-'+new Date().toISOString().slice(0,10)+'.zip');toast('Zip downloaded')}catch(e){toast('Export failed: '+e.message)}lab.textContent=dirH?'Saved to folder':'Saved on this device'}
+async function shareZip(p){const blob=await projectZip(p),f=new File([blob],fname(p),{type:'application/zip'}),d={title:p.name,files:[f]};if(/^https?:/.test(location.protocol))d.text='Open this project in Side-by-side Reader: '+location.href.split(/[?#]/)[0];
+try{if(navigator.canShare?.({files:[f]})){await navigator.share(d);return}throw 0}catch(e){if(e&&e.name==='AbortError')return;dl(blob,f.name);toast('Sharing unavailable here — zip downloaded')}}
+$('#zp').onchange=async e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)importFiles(fs,false,false)};
+const homeMenu=()=>[['Add project zip files…',()=>$('#zp').click()],...(dirH?[['Reload from storage folder',async()=>{lab.textContent='Reading folder…';const n=await restoreFromFolder();if(n){save(1);renderHome()}toast(n?`Loaded ${n} project${n>1?'s':''}`:'Nothing new in the folder');lab.textContent='Saved to '+dirH.name}]]:[]),(canDir()?[dirH?'Change storage path…':'Set storage path…',changePath]:['Storage info…',()=>runSetup(false)]),['Export all as zip',exportAll],...(ip?[['Install app',inst]]:[]),...(/^https?:/.test(location.protocol)&&navigator.share?[['Share app link',()=>navigator.share({title:document.title,url:location.href.split(/[?#]/)[0]}).catch(()=>{})]]:[])];
+$('#hm').onclick=e=>menu(e.currentTarget,homeMenu());
+/* boot */
+(async()=>{let setup=null;try{db=await new Promise((ok,no)=>{const r=indexedDB.open('sbs4',1);r.onupgradeneeded=()=>{r.result.createObjectStore('k');r.result.createObjectStore('items',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const tx=db.transaction(['k','items']),[PL,L,all,sd,dh]=await Promise.all([rq(tx.objectStore('k').get('projects')),rq(tx.objectStore('k').get('layout')),rq(tx.objectStore('items').getAll()),rq(tx.objectStore('k').get('setup')),rq(tx.objectStore('k').get('dir'))]);
+all.forEach(i=>items.set(i.id,i));setup=sd||null;if(dh&&dh.kind==='directory')dirH=dh;
+if(PL){projs=PL.list||[];st=projs.find(p=>p.id===PL.cur)||null}else if(L){projs=[{id:uid(),name:'My project',cols:L.cols,x:L.x||0,sc:L.sc||{},u:Date.now()}];st=projs[0]}}catch{db=null}
+ready=true;
+if(dirH&&setup==='folder'){fl();if(!await hasPerm())setFix(true);else lab.textContent='Saved to '+dirH.name}else lab.textContent=db?'Saved on this device':'Saved in this session';
+const sp=new URLSearchParams(location.search),inbox=sp.get('inbox')==='1';
+if(!setup)await runSetup(true);
+fl();
+if(st)openP(st.id);else goHome();
+if(dirH&&dirtyP.size===0&&projs.length&&await hasPerm()){projs.forEach(p=>{if(!p.file)dirtyP.add(p.id)});diskFlush()}
+if(inbox){history.replaceState(null,'',location.pathname);try{const c=await caches.open('sbs-inbox'),ks=await c.keys(),fs=[];for(const k of ks){const r=await c.match(k);fs.push(new File([await r.blob()],decodeURIComponent(r.headers.get('x-name')||'shared.zip'),{type:'application/zip'}));await c.delete(k)}if(fs.length)await importFiles(fs,true,false)}catch(e){console.warn(e)}}
+if('launchQueue'in window)launchQueue.setConsumer(async lp=>{if(!lp.files||!lp.files.length)return;const fs=[];for(const h of lp.files)fs.push(await h.getFile());importFiles(fs,true,false)});
+document.fonts?.ready.then(restore);addEventListener('load',restore);navigator.storage?.persist?.()})();
+})();
+</script></body></html>
