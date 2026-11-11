@@ -21,8 +21,9 @@ Project ⋮ -> Share… -> "Project as ZIP". The receiver opens the zip with the
 share sheet; desktop: double-click / Open with) or uses ⋮ -> "Add project zip files".
 
 ## Gestures
-- Columns sit edge to edge (a thin divider only). The header bars have a small gap between them, and the **lock** button sits in that gap.
-- **Lock** (top centre, between the headers): a strict lock. When it is on (blue, closed padlock) every column is always at exactly the same scroll position, whichever one you scroll. A column with fewer images simply shows empty space below its last image, so all columns scroll the same distance; nothing is matched or stretched. When it is off (open padlock) each column scrolls on its own. The setting is remembered per project.
+- Columns fill the screen edge to edge (a 1px divider only) with a slim header. Images always fill the full column width.
+- **Lock** (padlock in the top bar): blue = locked. Clicking it never moves a single image. While locked, all columns scroll as ONE (a single scroller, so they cannot drift); blank space above/below a column is simply scrolled through. Unlock and everything stays exactly where it was until you scroll a column. The setting is remembered per project.
+- **Hold / long-press menu and drag-reorder** only work when the project is unlocked AND the page is at its original size (not pinch-zoomed even slightly). Right-click on desktop follows the same rule.
 - **Full screen** (arrows icon next to the column title): the column fills the screen and keeps your reading position. Tap the icon again (now "shrink"), press the phone Back button, or press Esc to return to the normal side-by-side view exactly as you left it.
 - Pinch anywhere (two fingers) to zoom the whole page; the browser re-draws images at the zoomed size, so they stay sharp. Drag to move around the zoomed page; when a column is at its top/bottom the drag carries on to move the page. Pinch back out to return to normal. (On desktop use Ctrl + scroll or Ctrl + / Ctrl -.)
 - Tap an image: open full-screen viewer (at normal page size). Swipe left/right to change photo, swipe up/down to close, phone Back button also closes it. Pinch or double-tap to zoom the photo, drag to move around.
@@ -35,3 +36,6 @@ A long-press (about half a second) only counts when your finger stays still and 
 
 ## Speed
 Big photos are shown in the columns as a resized copy (made once in the background and remembered); the original file is always kept untouched for the full-screen viewer, sharing and the zip. Saving no longer re-reads every image each time.
+
+## Folder permission
+The browser, not the app, decides how long folder access lasts. The app asks once, on your first tap of a visit, and only if access was lost. In Chrome/Edge choose **"Allow on every visit"** in that prompt and it will stop asking on this device.

@@ -5,29 +5,28 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <title>Side-by-side Reader</title>
 <style>
-:root{color-scheme:light dark;--bg:#f4f4f1;--sf:#fff;--ink:#222;--mu:#777;--ln:#e3e2de;--ac:#176fc1;--onac:#fff;--as:#e6f1fc;--dg:#c84237;--minw:280px;--hh:42px;--hm:5px;--hd:color-mix(in srgb,var(--ink) 5.5%,var(--sf))}
+:root{color-scheme:light dark;--bg:#f4f4f1;--sf:#fff;--ink:#222;--mu:#777;--ln:#e3e2de;--ac:#176fc1;--onac:#fff;--as:#e6f1fc;--dg:#c84237;--minw:280px;--hh:28px;--hm:0px;--hd:color-mix(in srgb,var(--ink) 5.5%,var(--sf))}
 @media(prefers-color-scheme:dark){:root{--bg:#161616;--sf:#212121;--ink:#f2f2f0;--mu:#aaa;--ln:#383735;--ac:#8cc5ff;--onac:#0b2540;--as:#243648;--dg:#ff8174}}
-@media(max-width:600px){:root{--minw:150px;--hh:38px;--hm:4px}}
+@media(max-width:600px){:root{--minw:150px;--hh:32px;--hm:0px}}
 *{box-sizing:border-box}[hidden]{display:none!important}html,body{height:100%;margin:0}
 body{overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:pan-x pan-y pinch-zoom}
-.app{height:100dvh;display:flex;flex-direction:column;gap:8px;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
-.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.top h1{font-size:17px;margin:0;font-weight:650}.top small{color:var(--mu);margin-left:8px;font-size:11px}
+.app{height:100dvh;display:flex;flex-direction:column;gap:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:none;min-height:34px;padding:3px 6px;border-bottom:1px solid var(--ln);background:var(--sf)}
+.top h1{font-size:15px;margin:0;font-weight:650}.top small{color:var(--mu);margin-left:8px;font-size:11px}
 .bar{display:flex;gap:5px}
 button{font:inherit;color:inherit;cursor:pointer}
 .b{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;min-width:36px;padding:0 10px;border:1px solid var(--ln);border-radius:9px;background:var(--sf);font-weight:600;transition:background .15s,transform .1s}
 .b:hover:not(:disabled){background:var(--as);border-color:var(--ac)}.b:active{transform:scale(.96)}.b:disabled{opacity:.4;cursor:default}
 @media(max-width:600px){.lb{display:none}}
-#cols{position:relative;flex:1;min-height:0;display:grid;grid-auto-flow:column;grid-template-rows:minmax(0,1fr);gap:0;overflow-x:auto;overflow-y:hidden;background:var(--sf);border:1px solid var(--ln);border-radius:12px;scrollbar-width:thin;touch-action:pan-x pan-y pinch-zoom;
+#cols{position:relative;flex:1;min-height:0;display:grid;grid-auto-flow:column;grid-template-rows:minmax(0,1fr);gap:0;overflow-x:auto;overflow-y:hidden;background:var(--sf);border:0;border-radius:0;scrollbar-width:thin;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom;
 grid-auto-columns:max(var(--minw),calc(100% / var(--n)))}
 .col{contain:layout paint;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .col.over{outline:2px dashed var(--ac);outline-offset:-3px}
-.col header{display:flex;align-items:center;gap:1px;flex:none;height:var(--hh);margin:var(--hm);padding:0 3px 0 10px;border-radius:9px;background:var(--hd)}
-.col:not(:first-of-type) header{padding-left:20px}.col:not(:last-of-type) header{padding-right:19px}
-.col:not(:first-of-type) .sc{border-left:1px solid var(--ln)}
-.t{flex:1;min-width:0;border:0;background:none;color:inherit;font:650 13px system-ui;padding:6px 2px;border-radius:6px}.t:focus{outline:2px solid var(--ac)}
-.i{display:grid;place-items:center;padding:0;width:30px;height:30px;border:0;border-radius:7px;background:none;color:var(--mu);flex:none;transition:background .15s,color .15s,transform .1s}.i:hover{background:var(--as);color:var(--ac)}.i.d:hover{color:var(--dg)}
-.sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.col header{display:flex;align-items:center;gap:1px;flex:none;height:var(--hh);margin:0;padding:0 2px 0 8px;border-radius:0;background:var(--hd);border-bottom:1px solid var(--ln)}
+.col:not(:first-of-type){border-left:1px solid var(--ln)}
+.t{flex:1;min-width:0;border:0;background:none;color:inherit;font:650 12px system-ui;padding:2px;border-radius:6px}.t:focus{outline:2px solid var(--ac)}
+.i{display:grid;place-items:center;padding:0;width:28px;height:calc(var(--hh) - 2px);border:0;border-radius:7px;background:none;color:var(--mu);flex:none;transition:background .15s,color .15s,transform .1s}.i:hover{background:var(--as);color:var(--ac)}.i.d:hover{color:var(--dg)}
+.sc{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom;scrollbar-width:none;-webkit-overflow-scrolling:touch}.sc::-webkit-scrollbar{display:none}
 .zm .sc,.zm #cols{overscroll-behavior:auto}
 .list{position:relative;min-height:100%}
 .list:empty::before{content:"Drop images here, or use the add-image button";display:grid;place-items:center;min-height:120px;color:var(--mu);padding:16px;text-align:center}
@@ -49,7 +48,7 @@ dialog h2{margin:0 0 4px;font-size:16px}dialog p{margin:0 0 10px;color:var(--mu)
 #toast[hidden]{display:none}#toast button{border:0;background:none;color:#8cc5ff;font-weight:700}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .pt{display:flex;align-items:center;gap:6px;min-width:0}.pt h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top small{white-space:nowrap}
-#hv{display:none;flex:1;min-height:0;overflow:auto}.app[data-v=home] #hv{display:block}.app[data-v=home] #cols,.app[data-v=home] #home,.app[data-v=home] #menu{display:none}
+#hv{display:none;flex:1;min-height:0;overflow:auto;padding:8px 12px}.app[data-v=home] #hv{display:block}.app[data-v=home] #cols,.app[data-v=home] #home,.app[data-v=home] #menu{display:none}
 .hh{display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px}.hh h2{margin:0;font-size:18px}
 #pl{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}#pl:empty{display:none}
 .pc{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;transition:border-color .15s,transform .1s}.pc:hover{border-color:var(--ac)}.pc:active{transform:scale(.98)}
@@ -74,24 +73,28 @@ html,body{overscroll-behavior:none}
 .i .ic{width:17px;height:17px}.i:active{transform:scale(.92)}.tb .ic{width:20px;height:20px}.vb .ic{width:20px;height:20px}.vb button{display:inline-grid;place-items:center;padding:0;vertical-align:middle}
 .i .sh{display:none}.full .i .ex{display:none}.full .i .sh{display:block}
 .sc{overflow-anchor:none}
-/* lock button, sits in the gap between two column headers */
-.lkb{position:absolute;z-index:6;top:calc(var(--hm) + (var(--hh) - 28px)/2);width:28px;height:28px;margin-left:-14px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ln);background:var(--sf);color:var(--mu);box-shadow:0 1px 4px #0003;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .18s,color .18s,border-color .18s,transform .12s}
-.lkb::after{content:"";position:absolute;inset:-5px;border-radius:50%}
-.lkb:hover{color:var(--ac);border-color:var(--ac)}.lkb:active{transform:scale(.9)}
-.lkb .ic{width:15px;height:15px;stroke-width:2.1}.lkb .l{display:none}.lk .lkb .l{display:block}.lk .lkb .u{display:none}
-.lk .lkb{background:var(--ac);border-color:var(--ac);color:var(--onac)}.lk .lkb:hover{filter:brightness(1.08)}
-.lkb:focus-visible,.i:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.i:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
 /* full-screen column */
-.fsx .col:not(.full){visibility:hidden}.fsx .lkb{display:none}
+.fsx .col:not(.full){visibility:hidden}
 .fsx .col.full{position:fixed;inset:0;z-index:20;background:var(--sf);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.fsx .col.full header{padding:0 3px 0 10px;margin:6px}
+.fsx .col.full header{padding:0 2px 0 8px;margin:0}.fsx .col.full{border-left:0}
 .fsx .col.full .sc{border-left:0}.fsx .col.full .d{display:none}
 .col.fsin{animation:fsin .2s cubic-bezier(.2,.8,.25,1)}@keyframes fsin{from{opacity:0;transform:scale(.985)}}
 /* while an item is being long-pressed / dragged nothing may scroll underneath the finger */
 #cols.hold,#cols.hold .sc{overflow:hidden}
-@media(max-width:600px){.t{font-size:12px;padding:6px 0}.i{width:24px;height:24px}.i .ic{width:16px;height:16px}.col header{padding-left:7px;padding-right:2px}.col:not(:first-of-type) header{padding-left:14px}.col:not(:last-of-type) header{padding-right:13px}
-.lkb{width:26px;height:26px;margin-left:-13px;top:calc(var(--hm) + (var(--hh) - 26px)/2)}.lkb::after{inset:-3px}}
+@media(max-width:600px){.t{font-size:12px;padding:2px 0}.i{width:27px}.i .ic{width:16px;height:16px}.col header{padding-left:6px;padding-right:1px}.top small{max-width:28vw;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.col.fsin{animation:none}}
+
+/* slim top bar + single lock button */
+.top .b{height:28px;min-width:30px;padding:0 8px;border-radius:8px}.top .tr{gap:4px}
+#lock .l{display:none}#lock.on .l{display:block}#lock.on .u{display:none}
+#lock.on{background:var(--ac);border-color:var(--ac);color:var(--onac)}.app[data-v=home] #lock{display:none}
+/* locked: ONE scroller moves every column together, so nothing can drift or be re-adjusted */
+#cols.lk{overflow:auto;grid-template-rows:minmax(min-content,1fr)}
+#cols.lk .col{contain:none;overflow:visible}
+#cols.lk .sc{overflow:visible;flex:1 0 auto;min-height:auto}
+#cols.lk .col header{position:sticky;top:0;z-index:5}
+@supports selector(::-webkit-scrollbar){#cols{scrollbar-width:auto}#cols::-webkit-scrollbar{height:6px;width:0}#cols::-webkit-scrollbar-thumb{background:var(--ln);border-radius:3px}}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false"><defs>
 <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
@@ -110,7 +113,7 @@ html,body{overscroll-behavior:none}
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 </defs></svg>
 <main class="app">
-<div class="top"><div class="pt"><button class="b" id="home" title="All projects" aria-label="All projects"><svg class="ic"><use href="#i-left"/></svg></button><h1 id="pn">Side-by-side Reader</h1></div><span class="tr"><button class="b" id="fix" hidden>Reconnect folder</button><small id="state">Loading…</small><button class="b" id="menu" title="Project menu" aria-label="Project menu"><svg class="ic"><use href="#i-dots"/></svg></button></span></div>
+<div class="top"><div class="pt"><button class="b" id="home" title="All projects" aria-label="All projects"><svg class="ic"><use href="#i-left"/></svg></button><h1 id="pn">Side-by-side Reader</h1></div><span class="tr"><button class="b" id="fix" hidden>Reconnect folder</button><small id="state">Loading…</small><button class="b" id="lock" title="Lock columns together" aria-label="Lock columns together" aria-pressed="false"><svg class="ic l"><use href="#i-lock"/></svg><svg class="ic u"><use href="#i-unlock"/></svg></button><button class="b" id="menu" title="Project menu" aria-label="Project menu"><svg class="ic"><use href="#i-dots"/></svg></button></span></div>
 <div id="cols"></div>
 <div id="hv"><div class="hh"><h2>Projects</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="b" id="ib" hidden>Install app</button><button class="b" id="np"><svg class="ic"><use href="#i-plus"/></svg> New project</button><button class="b" id="hm" title="More" aria-label="More"><svg class="ic"><use href="#i-dots"/></svg></button></span></div><div id="pl"></div><p id="pe" hidden>No projects yet. Tap “＋ New project”, or ⋮ → “Add project zip files”.</p><p id="fl"></p></div></main>
 <div id="v" hidden><div class="vb"><span id="vn"></span><span><button id="vp" aria-label="Previous"><svg class="ic"><use href="#i-left"/></svg></button><button id="vo" aria-label="Zoom out"><svg class="ic"><use href="#i-minus"/></svg></button><span id="vz">100%</span><button id="vi" aria-label="Zoom in"><svg class="ic"><use href="#i-plus"/></svg></button><button id="vq" aria-label="Next"><svg class="ic"><use href="#i-right"/></svg></button><button id="vc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></span></div><div id="vs"><div id="vt"></div></div></div>
@@ -124,7 +127,7 @@ html,body{overscroll-behavior:none}
 (()=>{'use strict';
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
 const mk=t=>({id:uid(),title:t,mode:'fit',ids:[]});
-let dirH=null,mode='',dirtyP=new Set,goneF=new Set,dw=false,db,items=new Map,projs=[],st=null,view='home',past=[],fut=[],urls=new Map,pick=null,ready=false,dirty=new Set,gone=new Set,saveT,gcT,mute=0,sT,drag=null,ip=null,fsId=null,fpush=false,LK=null,busy=0,lastScrollT=0,thumbs=new Map(),turls=new Map(),tfail=new Set();
+let dirH=null,mode='',dirtyP=new Set,goneF=new Set,dw=false,db,items=new Map,projs=[],st=null,view='home',past=[],fut=[],urls=new Map,pick=null,ready=false,dirty=new Set,gone=new Set,saveT,gcT,mute=0,sT,drag=null,ip=null,fsId=null,fpush=false,lkm=false,lw=0,busy=0,lastScrollT=0,thumbs=new Map(),turls=new Map(),tfail=new Set();
 const root=$('#cols'),lab=$('#state'),col=id=>st.cols.find(c=>c.id===id);
 const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const url=id=>{let u=urls.get(id);if(!u){u=URL.createObjectURL(items.get(id).blob);urls.set(id,u)}return u};
@@ -140,15 +143,29 @@ function gc(){if(busy){clearTimeout(gcT);gcT=setTimeout(gc,1500);return}const re
 function commit(fn,quiet){settleEdits();past.push(JSON.stringify(st.cols));if(past.length>50)past.shift();fut=[];fn();if(!quiet)render();save();clearTimeout(gcT);gcT=setTimeout(gc,2000)}
 function undo(){settleEdits();if(!past.length)return;fut.push(JSON.stringify(st.cols));st.cols=JSON.parse(past.pop());render();save()}
 function redo(){settleEdits();if(!fut.length)return;past.push(JSON.stringify(st.cols));st.cols=JSON.parse(fut.pop());render();save()}
-/* scroll memory */
-function anchorOf(sc){const k=sc.firstChild.children,t=sc.scrollTop+1;let lo=0,hi=k.length-1,r=-1;while(lo<=hi){const m=(lo+hi)>>1,e=k[m];if(e.offsetTop+e.offsetHeight>t){r=m;hi=m-1}else lo=m+1}if(r<0)return null;const e=k[r];return{id:e.dataset.id,f:(sc.scrollTop-e.offsetTop)/(e.offsetHeight||1)}}
-function applyAnchor(sc,a){const e=a&&sc.firstChild.querySelector(`[data-id="${a.id}"]`);if(e)sc.scrollTop=e.offsetTop+a.f*e.offsetHeight}
+/* scroll memory + layout. A column's position is always kept as a "natural" y (px from the top of its first item), so it survives re-layout, lock/unlock, full screen and reload */
+const cn=()=>[...root.querySelectorAll(':scope>.col')],lst=n=>n.querySelector('.list'),scr=n=>n.querySelector('.sc'),padT=l=>l._pt||0,colNode=id=>root.querySelector(`:scope>.col[data-id="${id}"]`);
+const natH=l=>{const k=l.lastElementChild;return k?k.offsetTop-padT(l)+k.offsetHeight:0};
+function setPad(l,t,b){t=Math.max(0,t);b=Math.max(0,b);l._pt=t;l._pb=b;l.style.paddingTop=t?t+'px':'';l.style.paddingBottom=b?b+'px':''}
+function anchorAt(l,y){const k=l.children,pt=padT(l),t=y+1;let lo=0,hi=k.length-1,r=-1;while(lo<=hi){const m=(lo+hi)>>1,e=k[m];if(e.offsetTop-pt+e.offsetHeight>t){r=m;hi=m-1}else lo=m+1}if(r<0)r=k.length-1;if(r<0)return null;const e=k[r];return{id:e.dataset.id,f:(y-(e.offsetTop-pt))/(e.offsetHeight||1)}}
+function yOf(l,a){const e=a&&l.querySelector(`[data-id="${a.id}"]`);return e?e.offsetTop-padT(l)+a.f*e.offsetHeight:null}
+const curYs=()=>cn().map(n=>(lkm?root.scrollTop:scr(n).scrollTop)-padT(lst(n)));
+/* unlocked column: put natural y at the top; if that is above the first item keep blank space there instead of moving anything */
+function placeCol(n,y){const s=scr(n),l=lst(n),vh=s.clientHeight,h=natH(l);setPad(l,-y,y+vh-h);s.scrollTop=Math.max(0,y)}
+function applyPos(ys,lock){const ns=cn();if(!ns.length)return;
+if(lock){const hd=ns[0].querySelector('header'),vh=root.clientHeight-(hd?hd.offsetHeight:0),hs=ns.map(n=>natH(lst(n))),S=Math.max(0,...ys);
+ns.forEach((n,i)=>{const T=S-ys[i];setPad(lst(n),T,S+vh-T-hs[i])});root.classList.add('lk');lkm=true;root.scrollTop=S}
+else{root.classList.remove('lk');lkm=false;ns.forEach((n,i)=>placeCol(n,ys[i]));root.scrollTop=0}}
 function capture(){if(!ready||view!=='proj'||!st||!root.children.length)return;
-if(fsId){const sc=colNode(fsId)?.querySelector('.sc'),a=sc&&anchorOf(sc);if(a)st.sc[fsId]=a;return}
-st.x=root.scrollLeft;for(const c of root.querySelectorAll(':scope>.col')){const a=anchorOf(c.querySelector('.sc'));if(a)st.sc[c.dataset.id]=a}}
-function restore(){if(!st||view!=='proj')return;root.scrollLeft=st.x||0;for(const c of root.querySelectorAll(':scope>.col'))applyAnchor(c.querySelector('.sc'),st.sc[c.dataset.id]);relock()}
-root.addEventListener('scroll',()=>{if(!ready||Date.now()<mute)return;clearTimeout(sT);sT=setTimeout(()=>{capture();putK()},600)},true);
-let rzT=0;addEventListener('resize',()=>{mute=Date.now()+600;clearTimeout(rzT);rzT=setTimeout(()=>requestAnimationFrame(restore),90)});
+if(fsId){const n=colNode(fsId);if(n){const l=lst(n),a=anchorAt(l,scr(n).scrollTop-padT(l));if(a)st.sc[fsId]=a}return}
+st.x=root.scrollLeft;const ys=curYs();cn().forEach((n,i)=>{const a=anchorAt(lst(n),ys[i]);if(a)st.sc[n.dataset.id]=a})}
+function restore(){if(!st||view!=='proj')return;root.scrollLeft=st.x||0;lw=root.clientWidth;applyPos(cn().map(n=>{const y=yOf(lst(n),st.sc[n.dataset.id]);return y==null?0:y}),!!st.lk&&!fsId)}
+/* blank space left over after an unlock is dropped quietly once you scroll away from it (no visible movement) */
+let pkT=0,rlT=0;function relax(){if(lkm||fsId||view!=='proj'||root.classList.contains('hold'))return;for(const n of cn()){const l=lst(n),s=scr(n);if(l._pt&&s.scrollTop>=l._pt){const p=l._pt;setPad(l,0,l._pb);s.scrollTop-=p}if(l._pb&&s.scrollTop+s.clientHeight<=padT(l)+natH(l))setPad(l,padT(l),0)}}
+root.addEventListener('scroll',e=>{lastScrollT=performance.now();
+if(g&&g.touch&&(g.k==='pend'||g.k==='arm')&&(e.target===g.sc||e.target===root)){clearTimeout(g.timer);g.el.classList.remove('lift');holdOff();g.k='scroll'}
+if(!ready||Date.now()<mute)return;clearTimeout(sT);sT=setTimeout(capture,120);clearTimeout(pkT);pkT=setTimeout(putK,800);clearTimeout(rlT);rlT=setTimeout(relax,350)},true);
+let rzT=0;addEventListener('resize',()=>{if(view!=='proj'||root.clientWidth===lw)return;mute=Date.now()+600;clearTimeout(rzT);rzT=setTimeout(()=>requestAnimationFrame(restore),90)});
 const leave=()=>{settleEdits();capture();flush(true)};addEventListener('pagehide',leave);document.addEventListener('visibilitychange',()=>{if(document.hidden)leave()});
 /* render */
 const FS=!!(window.CSS&&CSS.supports&&CSS.supports('field-sizing','content'));if(FS)document.documentElement.classList.add('fs');
@@ -176,8 +193,8 @@ if(tq.size){const e=[...tq].pop(),id=e[0],im=e[1];tq.delete(id);if(!im.isConnect
 else if(bgQ.length){if(bgAct)break;if(performance.now()-lastScrollT<500){await new Promise(r=>setTimeout(r,250));continue}bgAct=1;try{await ensureThumb(bgQ.pop())}finally{bgAct=0}}
 else break}}
 function bgGo(){bgQ.length=0;if(!st)return;const seen=new Set;for(const c of st.cols)for(const id of c.ids){if(seen.has(id))continue;seen.add(id);if(!thumbs.has(id)&&!tfail.has(id)&&needTh(items.get(id)))bgQ.push(id)}bgQ.reverse();pump()}
-function mkIO(sc){const near=new IntersectionObserver(es=>{for(const x of es){const im=x.target.firstChild;if(!im||!x.isIntersecting)continue;im._w=1;if(!im.getAttribute('src')){const id=x.target.dataset.id,u=disp(id);if(u)im.src=u;else want(id,im)}}},{root:sc,rootMargin:'120% 0px'}),
-far=new IntersectionObserver(es=>{for(const x of es)if(!x.isIntersecting){const im=x.target.firstChild;if(im){im._w=0;im.removeAttribute('src')}}},{root:sc,rootMargin:'300% 0px'});ios.push(near,far);return e=>{near.observe(e);far.observe(e)}}
+function mkIO(sc,lk){const A=lk?'120% 60%':'120% 0px',B=lk?'300% 100%':'300% 0px',near=new IntersectionObserver(es=>{for(const x of es){const im=x.target.firstChild;if(!im||!x.isIntersecting)continue;im._w=1;if(!im.getAttribute('src')){const id=x.target.dataset.id,u=disp(id);if(u)im.src=u;else want(id,im)}}},{root:sc,rootMargin:A}),
+far=new IntersectionObserver(es=>{for(const x of es)if(!x.isIntersecting){const im=x.target.firstChild;if(im){im._w=0;im.removeAttribute('src')}}},{root:sc,rootMargin:B});ios.push(near,far);return e=>{near.observe(e);far.observe(e)}}
 /* text blocks: tap to edit, ✕ cancels, ✓ saves */
 const edits=new Set;
 function txEl(id,text,draft){const e=document.createElement('div');e.className='it tx'+(draft?' draft':'');e.dataset.id=id;
@@ -195,13 +212,14 @@ const IC=n=>`<svg class="ic"><use href="#i-${n}"/></svg>`;
 function itEl(c,id,obs){const it=items.get(id);if(!it)return null;
 if(it.type==='text')return txEl(id,it.text||'');
 const e=document.createElement('div');e.className='it';e.dataset.id=id;
-const w=it.w||4,h=it.h||3;e.style.aspectRatio=w+'/'+h;const im=new Image();im.alt=it.name||'';im.draggable=false;im.decoding='async';im.onerror=()=>{if(im.getAttribute('src'))im.removeAttribute('src')};e.append(im);obs(e);
+const w=it.w||4,h=it.h||3;e.style.aspectRatio=w+'/'+h;const im=new Image();im.alt=it.name||'';im.draggable=false;im.decoding='async';im.onerror=()=>{if(im.getAttribute('src'))im.removeAttribute('src')};e.append(im);
 return e}
 function colEl(c){const e=document.createElement('section');e.className='col'+(c.id===fsId?' full':'');e.dataset.id=c.id;
 e.innerHTML='<header><input class="t" maxlength="40" aria-label="Column name"><button class="i" data-a="fs" title="Full screen" aria-label="Full screen"><svg class="ic ex"><use href="#i-expand"/></svg><svg class="ic sh"><use href="#i-shrink"/></svg></button><button class="i" data-a="img" title="Add images" aria-label="Add images">'+IC('imgplus')+'</button><button class="i" data-a="txt" title="Add text" aria-label="Add text">'+IC('type')+'</button><button class="i d" data-a="delcol" title="Delete column" aria-label="Delete column">'+IC('trash')+'</button></header><div class="sc"><div class="list" role="list"></div></div>';if(c.id===fsId)setFsBtn(e,true);
 const t=e.querySelector('.t');t.value=c.title;t.onchange=()=>{c.title=t.value.trim()||'Untitled';t.value=c.title;save()};t.onkeydown=k=>{if(k.key==='Enter')t.blur()};
-const obs=mkIO(e.querySelector('.sc'));e.querySelector('.list').append(...c.ids.map(id=>itEl(c,id,obs)).filter(Boolean));return e}
-function render(keep=true){if(keep)capture();if(!st)return;ios.forEach(o=>o.disconnect());ios=[];edits.clear();root.style.setProperty('--n',st.cols.length);if(fsId&&!col(fsId))dropFs();root.classList.toggle('fsx',!!fsId);root.replaceChildren(...st.cols.map(colEl));if(!FS){const ts=[...root.querySelectorAll('textarea')];ts.forEach(t=>t.style.height='auto');ts.forEach(t=>t.style.height=t.scrollHeight+'px')}restore();layoutLK();lkRO.disconnect();root.querySelectorAll(':scope>.col .list').forEach(l=>lkRO.observe(l));clearTimeout(bgT);bgT=setTimeout(bgGo,400)}
+e.querySelector('.list').append(...c.ids.map(id=>itEl(c,id)).filter(Boolean));return e}
+function setIO(){ios.forEach(o=>o.disconnect());ios=[];for(const n of cn()){const ob=mkIO(lkm?root:scr(n),lkm);n.querySelectorAll('.it:not(.tx)').forEach(ob)}}
+function render(keep=true){if(keep)capture();if(!st)return;ios.forEach(o=>o.disconnect());ios=[];edits.clear();root.style.setProperty('--n',st.cols.length);if(fsId&&!col(fsId))dropFs();root.classList.toggle('fsx',!!fsId);root.replaceChildren(...st.cols.map(colEl));if(!FS){const ts=[...root.querySelectorAll('textarea')];ts.forEach(t=>t.style.height='auto');ts.forEach(t=>t.style.height=t.scrollHeight+'px')}restore();lkUI();setIO();clearTimeout(bgT);bgT=setTimeout(bgGo,400)}
 /* adding */
 const dims=f=>new Promise(r=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{r([i.naturalWidth||4,i.naturalHeight||3]);URL.revokeObjectURL(u)};i.onerror=()=>{r([4,3]);URL.revokeObjectURL(u)};i.src=u});
 async function addFiles(cid,files,at){files=[...files].filter(f=>f.type.startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|svg|avif|heic|heif)$/i.test(f.name));if(!files.length)return toast('Choose image files');const out=[];let n=0;busy++;try{
@@ -209,7 +227,7 @@ for(const f of files){lab.textContent=`Adding ${++n}/${files.length}…`;const d
 commit(()=>{const c=col(cid);if(c)c.ids.splice(at??c.ids.length,0,...out)})}finally{busy--}}
 function move(id,cid,at){const to=col(cid);let from=st.cols.find(c=>c.ids.includes(id));if(!from||!to)return;const i=from.ids.indexOf(id);if(from===to&&(at===i||at===i+1))return;commit(()=>{from.ids.splice(i,1);if(from===to&&i<at)at--;to.ids.splice(at,0,id)})}
 /* events */
-root.addEventListener('click',e=>{const b=e.target.closest('[data-a]'),cEl=e.target.closest('.col'),a=b?.dataset.a;if(a==='lock'){toggleLock();return}if(!cEl)return;const c=col(cEl.dataset.id);if(!c)return;
+root.addEventListener('click',e=>{const b=e.target.closest('[data-a]'),cEl=e.target.closest('.col'),a=b?.dataset.a;if(!cEl)return;const c=col(cEl.dataset.id);if(!c)return;
 if(a==='img'){pick=c.id;$('#fp').click()}
 else if(a==='txt'){const d=txEl(uid(),'',true);cEl.querySelector('.list').append(d);beginEdit(d)}
 else if(a==='tsave'||a==='tcancel'){const el=e.target.closest('.it');if(el)endEdit(el,a==='tsave')}
@@ -237,44 +255,22 @@ function pasteAfter(id){if(!clip)return;const c=st.cols.find(x=>x.ids.includes(i
 const itemMenu=(id,x,y)=>{const it=items.get(id);if(!it)return;const tx=it.type==='text',l=[[tx?'Copy text':'Copy image',()=>{clip={...it};delete clip.id;toast(tx?'Text copied — long-press another item to paste':'Image copied — long-press another item to paste')}]];
 if(clip)l.push(['Paste below',()=>pasteAfter(id)]);l.push([tx?'Delete text block':'Delete image',()=>delItem(id),1]);pointMenu(x,y,l)};
 /* whole-page zoom is native (pinch). While zoomed, scrolling chains out of a column so the page can be moved anywhere */
-const vv=window.visualViewport,zoomed=()=>(vv?.scale||1)>1.05;
-if(vv){let f=0;vv.addEventListener('resize',()=>{if(f)return;f=requestAnimationFrame(()=>{f=0;document.documentElement.classList.toggle('zm',vv.scale>1.02)})})}
-/* ── strict column lock: when on, every column always sits at the SAME scroll position. A shorter column simply shows empty space below its last item, so all columns can scroll exactly as far as the longest one ── */
-const scs=()=>[...root.querySelectorAll(':scope>.col .sc')],colNode=id=>root.querySelector(`:scope>.col[data-id="${id}"]`);
-let lkId=null,flr=0;
-function fitLock(){const on=!!(st&&st.lk)&&!fsId&&view==='proj',ls=[...root.querySelectorAll(':scope>.col .list')];
-if(!on){for(const l of ls)if(l.dataset.mh){l.dataset.mh='';l.style.minHeight=''}return}
-let H=0;for(const l of ls){const k=l.lastElementChild;if(k)H=Math.max(H,k.offsetTop+k.offsetHeight)}
-const v=`max(${H}px,100%)`;for(const l of ls)if(l.dataset.mh!==v){l.dataset.mh=v;l.style.minHeight=v}}
-function fitLockSoon(){if(flr)return;flr=requestAnimationFrame(()=>{flr=0;fitLock()})}
-const lkRO=new ResizeObserver(fitLockSoon);root.addEventListener('input',fitLockSoon);
-function relock(){fitLock();if(!st||!st.lk||fsId||view!=='proj'){LK=null;return}const l=scs();if(l.length<2){LK=null;return}
-const m=l.find(x=>x.parentNode.dataset.id===lkId)||l[0],t=m.scrollTop,now=performance.now();LK={l,ex:new Map(),mute:now+160};
-for(const x of l){if(x===m)continue;const b=x.scrollTop;if(b!==t){x.scrollTop=t;const a=x.scrollTop;if(a!==b)LK.ex.set(x,{v:a,t:now})}}}
-root.addEventListener('scroll',e=>{const s=e.target,now=performance.now();lastScrollT=now;
-if(g&&g.touch&&(g.k==='pend'||g.k==='arm')&&(s===g.sc||s===root)){clearTimeout(g.timer);g.el.classList.remove('lift');holdOff();g.k='scroll'}
-if(!s.classList||!s.classList.contains('sc')||fsId)return;
-if(!LK){lkId=s.parentNode.dataset.id;return}
-const x=LK.ex.get(s);if(x){LK.ex.delete(s);if(now-x.t<120&&Math.abs(s.scrollTop-x.v)<1.5)return}
-if(now<LK.mute||!LK.l.includes(s))return;lkId=s.parentNode.dataset.id;const P=s.scrollTop;
-for(const t of LK.l){if(t===s)continue;const b=t.scrollTop;if(b!==P){t.scrollTop=P;const a=t.scrollTop;if(a!==b)LK.ex.set(t,{v:a,t:now})}}},true);
-function lkUI(){const on=!!(st&&st.lk),t=on?'Unlock scrolling':'Lock scrolling together';root.classList.toggle('lk',on);root.querySelectorAll(':scope>.lkb').forEach(b=>{b.setAttribute('aria-pressed',on);b.title=t;b.setAttribute('aria-label',t)})}
-function toggleLock(){if(!st)return;st.lk=!st.lk;lkUI();relock();if(LK)LK.mute=0;save(1)}
-function layoutLK(){if(fsId)return;const cs=[...root.querySelectorAll(':scope>.col')],ls=[...root.querySelectorAll(':scope>.lkb')],need=Math.max(0,cs.length-1);
-while(ls.length>need)ls.pop().remove();
-while(ls.length<need){const b=document.createElement('button');b.type='button';b.className='lkb';b.dataset.a='lock';b.innerHTML='<svg class="ic l"><use href="#i-lock"/></svg><svg class="ic u"><use href="#i-unlock"/></svg>';root.append(b);ls.push(b)}
-for(let i=0;i<need;i++)ls[i].style.left=cs[i+1].offsetLeft+'px';lkUI();fitLockSoon()}
-new ResizeObserver(()=>layoutLK()).observe(root);
+const vv=window.visualViewport,zoomed=()=>(vv?.scale||1)>1.01,holdOK=()=>!(st&&st.lk)&&!zoomed();
+if(vv){let f=0;vv.addEventListener('resize',()=>{lastScrollT=performance.now();if(f)return;f=requestAnimationFrame(()=>{f=0;document.documentElement.classList.toggle('zm',vv.scale>1.01)})});vv.addEventListener('scroll',()=>{lastScrollT=performance.now()},{passive:true})}
+/* ── lock: ONE scroller moves every column together, so they can never drift. Locking / unlocking never moves a single image ── */
+function lkUI(){const on=!!(st&&st.lk),b=$('#lock'),t=on?'Unlock columns':'Lock columns together';b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);b.title=t;b.setAttribute('aria-label',t);b.disabled=!!fsId}
+function toggleLock(){if(!st||fsId||view!=='proj')return;const ys=curYs();st.lk=!st.lk;applyPos(ys,st.lk);setIO();lkUI();save(1)}
+$('#lock').onclick=toggleLock;
 /* ── full-screen column (button next to the title; Back / Esc / the same button returns) ── */
 function setFsBtn(n,on){const b=n.querySelector('[data-a="fs"]');if(b){const t=on?'Exit full screen':'Full screen';b.title=t;b.setAttribute('aria-label',t)}}
 function refit(n){if(!FS)n.querySelectorAll('textarea').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px'})}
-function enterFs(id){if(fsId||view!=='proj')return;const n=colNode(id);if(!n)return;capture();fsId=id;LK=null;root.classList.add('fsx');n.classList.add('full','fsin');fitLock();setFsBtn(n,true);
-n.addEventListener('animationend',()=>n.classList.remove('fsin'),{once:true});refit(n);applyAnchor(n.querySelector('.sc'),st.sc[id]);
+function enterFs(id){if(fsId||view!=='proj')return;const n=colNode(id);if(!n)return;capture();fsId=id;root.classList.add('fsx');n.classList.add('full','fsin');setFsBtn(n,true);
+n.addEventListener('animationend',()=>n.classList.remove('fsin'),{once:true});refit(n);restore();setIO();lkUI();
 if(!fpush){try{history.pushState({f:1},'');fpush=true}catch{}}}
-function exitFs(){if(!fsId)return;const id=fsId,n=colNode(id),sc=n&&n.querySelector('.sc'),a=sc&&anchorOf(sc);fsId=null;root.classList.remove('fsx');
-if(n){n.classList.remove('full','fsin');setFsBtn(n,false);refit(n)}if(a)st.sc[id]=a;restore();layoutLK();save(1)}
+function exitFs(){if(!fsId)return;const id=fsId,n=colNode(id);capture();fsId=null;root.classList.remove('fsx');
+if(n){n.classList.remove('full','fsin');setFsBtn(n,false);refit(n)}restore();setIO();lkUI();save(1)}
 function exitFsUI(){if(!fsId)return;if(fpush){fpush=false;history.back()}else exitFs()}
-function dropFs(){fsId=null;LK=null;root.classList.remove('fsx');if(fpush){fpush=false;try{history.back()}catch{}}}
+function dropFs(){fsId=null;root.classList.remove('fsx');if(fpush){fpush=false;try{history.back()}catch{}}}
 /* gestures on items: tap = open / edit text, long-press = menu / reorder. Two fingers are left to the browser (page zoom). */
 let g=null,lastTouch=0;
 const tp=e=>[...e.touches].map(t=>[t.clientX,t.clientY]);
@@ -285,20 +281,20 @@ function gStop(){if(!g)return;clearTimeout(g.timer);if(g.k==='drag')endDrag(fals
 function pdown(e,touch,pts){
 gStop();if(touch&&pts.length>1)return;
 const el=e.target.closest?.('.it');if(!el||!root.contains(el)||e.target.closest('.tb')||el.classList.contains('edit'))return;
-g={el,id:el.dataset.id,k:'pend',x0:pts[0][0],y0:pts[0][1],x:pts[0][0],y:pts[0][1],touch,sc:el.closest('.sc')};
+g={el,id:el.dataset.id,k:'pend',x0:pts[0][0],y0:pts[0][1],x:pts[0][0],y:pts[0][1],touch,sc:lkm?root:el.closest('.sc')};
 if(touch){if(performance.now()-lastScrollT<220){g.k='scroll';return}g.s0=g.sc?g.sc.scrollTop:0;g.timer=setTimeout(arm,450)}}
-function arm(){if(!g||g.k!=='pend')return;if(g.sc&&Math.abs(g.sc.scrollTop-g.s0)>.5||performance.now()-lastScrollT<150){g.k='scroll';return}g.k='arm';g.el.classList.add('lift');holdOn();navigator.vibrate?.(12)}
+function arm(){if(!g||g.k!=='pend')return;if(g.sc&&Math.abs(g.sc.scrollTop-g.s0)>.5||performance.now()-lastScrollT<150){g.k='scroll';return}if(!holdOK()){g.k='ignore';return}g.k='arm';g.el.classList.add('lift');holdOn();navigator.vibrate?.(12)}
 function pmove(pts,e,touch){if(!g)return;
 if(touch&&pts.length>1){gStop();return}
 const x=pts[0][0],y=pts[0][1],far=Math.hypot(x-g.x0,y-g.y0)>(touch?6:5);
-if(g.k==='pend'){if(!far)return;if(touch){clearTimeout(g.timer);g.k='scroll';return}startDrag(x,y)}
+if(g.k==='pend'){if(!far)return;if(touch){clearTimeout(g.timer);g.k='scroll';return}if(!holdOK()){g.k='ignore';return}startDrag(x,y)}
 else if(g.k==='arm'){if(!far)return;startDrag(x,y)}
 if(g.k==='drag')dragMove(x,y)}
 function pup(pts,e,touch){if(!g)return;
 if(touch&&pts.length>0)return;clearTimeout(g.timer);holdOff();const k=g.k,el=g.el,id=g.id,x=g.x0,y=g.y0;
 if(k==='drag'){endDrag(true);return}
 g=null;
-if(k==='arm'){el.classList.remove('lift');e.cancelable&&e.preventDefault();itemMenu(id,x,y)}
+if(k==='arm'){el.classList.remove('lift');e.cancelable&&e.preventDefault();if(holdOK())itemMenu(id,x,y)}
 else if(k==='pend'){e.cancelable&&e.preventDefault();tap(el,id)}}
 function tap(el,id){const it=items.get(id);if(!it)return;if(it.type==='text'){beginEdit(el);return}
 if(zoomed()){toast('Pinch out to normal size to open the full-screen viewer');return}
@@ -322,7 +318,7 @@ root.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;lastTo
 addEventListener('pointermove',e=>{if(e.pointerType!=='touch')pmove([[e.clientX,e.clientY]],e,false)});
 addEventListener('pointerup',e=>{if(e.pointerType!=='touch')pup([[e.clientX,e.clientY]],e,false)});
 addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')gStop()});
-root.addEventListener('contextmenu',e=>{const el=e.target.closest('.it');if(!el||el.classList.contains('edit'))return;e.preventDefault();if(e.pointerType==='touch'||Date.now()-lastTouch<1500)return;gStop();itemMenu(el.dataset.id,e.clientX,e.clientY)});
+root.addEventListener('contextmenu',e=>{const el=e.target.closest('.it');if(!el||el.classList.contains('edit'))return;e.preventDefault();if(e.pointerType==='touch'||Date.now()-lastTouch<1500||!holdOK())return;gStop();itemMenu(el.dataset.id,e.clientX,e.clientY)});
 /* viewer (gallery style: swipe left/right between photos, swipe up/down to close, back button closes) */
 const V=$('#v'),VS=$('#vs'),VT=$('#vt'),VB=$('.vb');let vl=[],vi=0,vsl=[],vz={s:1,x:0,y:0},vbusy=false,vpush=false,vP=new Map,vg=null,vlast=null,vtok=0;
 const SW=()=>VS.clientWidth,SH=()=>VS.clientHeight;
@@ -396,7 +392,12 @@ function renderHome(){const l=$('#pl');$('#pe').hidden=projs.length>0;l.replaceC
 function dup(p){const c=JSON.parse(JSON.stringify(p));c.id=uid();c.name=p.name+' copy';c.sc={};c.u=Date.now();delete c.file;for(const k of c.cols){k.id=uid();k.ids=k.ids.map(id=>{const it=items.get(id);if(it?.type==='text'){const n={...it,id:uid()};items.set(n.id,n);dirty.add(n.id);return n.id}return id})}projs.unshift(c);dirtyP.add(c.id);save(1);view==='home'?renderHome():toast('Duplicated as “'+c.name+'”')}
 const projMenu=p=>[['Open',()=>openP(p.id)],['Rename',async()=>{const n=await ask('Rename project',p.name);if(n){p.name=n;p.u=Date.now();dirtyP.add(p.id);save(1);st===p?$('#pn').textContent=document.title=n:renderHome()}}],['Duplicate',()=>dup(p)],['Share…',()=>shareP(p)],['Save as zip file',()=>shareZip(p)],['Delete project',async()=>{if(await cf(`Delete “${p.name}”?`,'All its columns and images will be removed. This can’t be undone.')){projs=projs.filter(x=>x!==p);goneF.add(p.file||fname(p));dirtyP.delete(p.id);if(st===p)goHome();else renderHome();save();clearTimeout(gcT);gcT=setTimeout(gc,500)}},1]];
 const topMenu=()=>{const pm=projMenu(st).slice(1),del=pm.pop();return[['Add column',addCol],['Import project (zip)…',importPick],...(past.length?[['Undo',undo]]:[]),...(fut.length?[['Redo',redo]]:[]),...pm,...(ip?[['Install app',inst]]:[]),...(canDir()?[[dirH?'Change storage path…':'Set storage path…',changePath]]:[]),['All projects',goHome],del]};
-function menu(a,list){document.querySelector('.mn')?.remove();const m=document.createElement('div');m.className='mn';for(const[t,f,d]of list){const b=document.createElement('button');b.textContent=t;if(d)b.className='dg';b.onclick=()=>{m.remove();f()};m.append(b)}document.body.append(m);const r=a.getBoundingClientRect();m.style.top=Math.max(8,Math.min(r.bottom+4,innerHeight-m.offsetHeight-8))+'px';m.style.left=Math.max(8,Math.min(r.right-m.offsetWidth,innerWidth-m.offsetWidth-8))+'px';setTimeout(()=>addEventListener('pointerdown',function h(e){if(!m.contains(e.target)){m.remove();removeEventListener('pointerdown',h,true)}},true),0)}
+function closeMenu(){const m=document.querySelector('.mn');if(m){removeEventListener('pointerdown',m._h,true);m.remove()}}
+function menu(a,list){const ex=document.querySelector('.mn');if(ex){const same=ex._a===a;closeMenu();if(same)return}
+const m=document.createElement('div');m.className='mn';m._a=a;for(const[t,f,d]of list){const b=document.createElement('button');b.textContent=t;if(d)b.className='dg';b.onclick=()=>{closeMenu();f()};m.append(b)}document.body.append(m);const r=a.getBoundingClientRect();m.style.top=Math.max(8,Math.min(r.bottom+4,innerHeight-m.offsetHeight-8))+'px';m.style.left=Math.max(8,Math.min(r.right-m.offsetWidth,innerWidth-m.offsetWidth-8))+'px';
+/* a press on the same ⋮ button is left to its click, which closes the menu (toggle) */
+m._h=e=>{if(!m.contains(e.target)&&!(a.contains&&a.contains(e.target)))closeMenu()};setTimeout(()=>{if(m.isConnected)addEventListener('pointerdown',m._h,true)},0)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 $('#menu').onclick=e=>menu(e.currentTarget,topMenu());$('#home').onclick=goHome;
 $('#np').onclick=async()=>{const n=await ask('New project','Project '+(projs.length+1));if(n)openP(newP(n).id)};
 /* zip (store-only writer, reader with deflate support) */
@@ -475,7 +476,11 @@ for(const f of[...goneF]){goneF.delete(f);try{await dirH.removeEntry(f)}catch{}}
 lab.textContent='Saved to '+dirH.name;setFix(false)}
 catch(e){bad=true;if(cur)dirtyP.add(cur);console.warn(e);lab.textContent='Could not write to folder';setFix(true)}
 finally{dw=false;if(!bad&&(dirtyP.size||goneF.size))setTimeout(diskFlush,200)}}
-$('#fix').onclick=async()=>{try{if(await dirH.requestPermission({mode:'readwrite'})==='granted'){projs.forEach(p=>dirtyP.add(p.id));setFix(false);diskFlush()}else toast('Permission not granted')}catch{toast('Could not reconnect — choose the folder again');runSetup(false)}};
+let permAsked=false;
+$('#fix').onclick=async()=>{permAsked=true;try{if(await dirH.requestPermission({mode:'readwrite'})==='granted'){projs.forEach(p=>dirtyP.add(p.id));setFix(false);diskFlush()}else toast('Permission not granted')}catch{toast('Could not reconnect — choose the folder again');runSetup(false)}};
+/* the browser only lets a page ask for folder access from a tap: ask once, on the first tap of a visit, and never again unless you press Reconnect. Choose “Allow on every visit” in the browser prompt and it stops asking for good. */
+document.addEventListener('click',async e=>{if(permAsked||!dirH||$('#fix').hidden||e.target.closest('#fix,dialog'))return;permAsked=true;try{if(await dirH.requestPermission({mode:'readwrite'})==='granted'){setFix(false);diskFlush()}}catch{}},true);
+document.addEventListener('visibilitychange',async()=>{if(!document.hidden&&dirH&&!$('#fix').hidden&&await hasPerm()){setFix(false);diskFlush()}});
 async function restoreFromFolder(){let fs=[];try{for await(const[n,h]of dirH.entries())if(h.kind==='file'&&/\.zip$/i.test(n)){const f=await h.getFile();Object.defineProperty(f,'__n',{value:n});fs.push(f)}}catch{return 0}
 let n=0;for(const f of fs){try{const r=await importBuf(await f.arrayBuffer(),f.__n,true);n+=r.n||0}catch(e){console.warn('skip',f.__n,e)}}return n}
 function runSetup(must){return new Promise(ok=>{const d=$('#sd');let done=false,busy=false;
