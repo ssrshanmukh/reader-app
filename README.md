@@ -33,7 +33,7 @@ share sheet; desktop: double-click / Open with) or uses ⋮ -> "Add project zip 
 
 ## Paste (images & text, any number)
 - **Long-press empty space** in a column (between items, or below the last one), keep still, then **let go**. A menu appears:
-  - **Paste** - takes everything on your clipboard (any number of images, or text) and inserts it straight into the column at that spot, in order. Chrome may show its own small "Paste" bubble the first time; tap it.
+  - **Paste** - opens a small box; tap it and choose Paste (desktop: Ctrl+V). Everything on your clipboard (any number of images, or text) is inserted into the column at that spot, in order.
   - **Paste copied image/text** - only shown if you used Copy on an item inside the app.
 - **Long-press an image or text block** (unlocked, normal zoom): the menu has Copy, **Paste** (inserts the clipboard right below that item), Delete, and "Paste copied image/text" if you used Copy in the app.
 - Desktop: right-click for the same menus, or press Ctrl+V to paste into the column you last clicked.

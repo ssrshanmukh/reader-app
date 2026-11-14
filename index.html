@@ -119,6 +119,7 @@ html,body{overscroll-behavior:none}
 <div id="hv"><div class="hh"><h2>Projects</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="b" id="ib" hidden>Install app</button><button class="b" id="np"><svg class="ic"><use href="#i-plus"/></svg> New project</button><button class="b" id="hm" title="More" aria-label="More"><svg class="ic"><use href="#i-dots"/></svg></button></span></div><div id="pl"></div><p id="pe" hidden>No projects yet. Tap “＋ New project”, or ⋮ → “Add project zip files”.</p><p id="fl"></p></div></main>
 <div id="v" hidden><div class="vb"><span id="vn"></span><span><button id="vp" aria-label="Previous"><svg class="ic"><use href="#i-left"/></svg></button><button id="vo" aria-label="Zoom out"><svg class="ic"><use href="#i-minus"/></svg></button><span id="vz">100%</span><button id="vi" aria-label="Zoom in"><svg class="ic"><use href="#i-plus"/></svg></button><button id="vq" aria-label="Next"><svg class="ic"><use href="#i-right"/></svg></button><button id="vc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></span></div><div id="vs"><div id="vt"></div></div></div>
 <dialog id="cd"><h2 id="cdt"></h2><p id="cdp"></p><div class="row"><button class="b" id="cdn">Cancel</button><button class="b" id="cdy" style="background:var(--dg);border-color:var(--dg);color:#fff">Delete</button></div></dialog>
+<dialog id="pm"><h2>Paste</h2><p>Tap the box and choose Paste (desktop: Ctrl+V). All copied images and text are added in order.</p><div id="pbox" contenteditable="true" role="textbox" aria-label="Paste here" style="min-height:120px;border:1px dashed var(--ln);border-radius:9px;padding:10px;background:var(--bg);outline:none;color:var(--mu)">Paste here…</div><button class="b" id="pmx" style="text-align:center;margin-top:10px">Cancel</button></dialog>
 <dialog id="sh"><h2>Share</h2><p>Opens your phone or computer’s share sheet. Original files are sent, never compressed.</p><div id="shb"></div><button class="b" id="shx" style="text-align:center;margin-top:10px">Close</button></dialog>
 <div id="toast" hidden><span id="tm"></span><button id="tu">Undo</button></div>
 <dialog id="nd"><h2 id="nt"></h2><input id="ni" maxlength="40" aria-label="Project name"><div style="display:flex;gap:6px;margin-top:10px"><button class="b" id="nc" style="text-align:center">Cancel</button><button class="b" id="no" style="text-align:center;background:var(--ac);color:#fff;border-color:var(--ac)">OK</button></div></dialog>
@@ -254,7 +255,7 @@ const pointMenu=(x,y,list)=>menu({getBoundingClientRect:()=>({bottom:y,right:x+2
 let clip=null;
 function pasteAfter(id){if(!clip)return;const c=st.cols.find(x=>x.ids.includes(id));if(!c)return;const n={...clip,id:uid()};items.set(n.id,n);dirty.add(n.id);commit(()=>c.ids.splice(c.ids.indexOf(id)+1,0,n.id));toast('Pasted below',undo)}
 const itemMenu=(id,x,y)=>{const it=items.get(id);if(!it)return;const tx=it.type==='text',l=[[tx?'Copy text':'Copy image',()=>{clip={...it};delete clip.id;toast(tx?'Text copied — long-press another item to paste':'Image copied — long-press another item to paste')}]];
-l.push(['Paste',()=>{const c=st.cols.find(x=>x.ids.includes(id));if(c)pasteDirect(c.id,c.ids.indexOf(id)+1)}]);if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteAfter(id)]);l.push([tx?'Delete text block':'Delete image',()=>delItem(id),1]);pointMenu(x,y,l)};
+l.push(['Paste',()=>{const c=st.cols.find(x=>x.ids.includes(id));if(c)pasteBox(c.id,c.ids.indexOf(id)+1)}]);if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteAfter(id)]);l.push([tx?'Delete text block':'Delete image',()=>delItem(id),1]);pointMenu(x,y,l)};
 /* whole-page zoom is native (pinch). While zoomed, scrolling chains out of a column so the page can be moved anywhere */
 const vv=window.visualViewport,zoomed=()=>(vv?.scale||1)>1.01,holdOK=()=>!(st&&st.lk)&&!zoomed();
 if(vv){let f=0;vv.addEventListener('resize',()=>{lastScrollT=performance.now();if(f)return;f=requestAnimationFrame(()=>{f=0;document.documentElement.classList.toggle('zm',vv.scale>1.01)})});vv.addEventListener('scroll',()=>{lastScrollT=performance.now()},{passive:true})}
@@ -341,7 +342,15 @@ else throw new Error('unsupported');return es}
 async function pasteDirect(cid,at){let es;try{es=await readSys()}catch(e){toast('Clipboard access was blocked — allow it in the browser prompt and try again');return}
 if(!es.length){toast('Clipboard is empty');return}await addEntries(cid,es,at)}
 function pasteClipAt(cid,at){if(!clip)return;const c=col(cid);if(!c)return;const n={...clip,id:uid()};items.set(n.id,n);dirty.add(n.id);commit(()=>c.ids.splice(Math.min(at,c.ids.length),0,n.id));toast('Pasted',undo)}
-function pasteMenu(cid,x,y,at){const l=[['Paste',()=>pasteDirect(cid,at)]];
+function pasteBox(cid,at){const d=$('#pm'),b=$('#pbox');b.textContent='Paste here…';
+const done=()=>{b.onpaste=null;d.close()};
+b.onfocus=()=>{if(b.textContent==='Paste here…')b.textContent=''};
+b.onbeforeinput=e=>{if(e.inputType!=='insertFromPaste')e.preventDefault()};
+b.onpaste=async e=>{e.preventDefault();const cd=e.clipboardData;if(!cd){done();return}
+const fs=pFromData(cd),tx=cd.getData('text/plain');done();
+if(fs.length)await addEntries(cid,fs.map(f=>({f})),at);else if(tx.trim())await addEntries(cid,[{text:tx}],at);else toast('Nothing to paste')};
+$('#pmx').onclick=done;d.oncancel=e=>{e.preventDefault();done()};d.showModal();setTimeout(()=>b.focus(),50)}
+function pasteMenu(cid,x,y,at){const l=[['Paste',()=>pasteBox(cid,at)]];
 if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteClipAt(cid,at)]);pointMenu(x,y,l)}
 function pFromData(cd){let fs=[...(cd.files||[])];if(!fs.length)for(const it of cd.items||[])if(it.kind==='file'){const f=it.getAsFile();if(f)fs.push(f)}
 fs=fs.filter(isImgF).map(f=>f.name&&!/^image\.\w+$/i.test(f.name)?f:new File([f],pname(f.type),{type:f.type}));return fs}
