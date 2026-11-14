@@ -96,6 +96,15 @@ html,body{overscroll-behavior:none}
 #cols.lk .sc{overflow:visible;flex:1 0 auto;min-height:auto}
 #cols.lk .col header{position:sticky;top:0;z-index:5}
 @supports selector(::-webkit-scrollbar){#cols{scrollbar-width:auto}#cols::-webkit-scrollbar{height:6px;width:0}#cols::-webkit-scrollbar-thumb{background:var(--ln);border-radius:3px}}
+
+/* selection + column drag */
+#menu{position:relative}#menu[data-n]::after{content:attr(data-n);position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:8px;background:var(--ac);color:var(--onac);font:700 10px/16px system-ui;text-align:center;padding:0 3px;pointer-events:none}
+.it.sel{outline:3px solid var(--ac);outline-offset:-3px}.it.sel img{filter:brightness(.82)}.it.sel.tx{background:var(--as)}
+.selm .it::after{content:"";position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:#0005;box-sizing:border-box;z-index:2;pointer-events:none}
+.selm .it.sel::after{content:"\2713";background:var(--ac);border-color:var(--ac);color:var(--onac);font:700 15px/20px system-ui;text-align:center}
+.col.cdrag{opacity:.45}.col.cover{outline:3px dashed var(--ac);outline-offset:-3px}
+.col>header.harm{background:var(--as);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.col>header.harm .t{pointer-events:none}
+.ghost.cg{padding:8px 12px;background:var(--sf);font:650 13px/1.3 system-ui;white-space:nowrap;max-width:60vw;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false"><defs>
 <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
@@ -130,7 +139,7 @@ html,body{overscroll-behavior:none}
 const $=s=>document.querySelector(s),uid=()=>crypto.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2);
 const mk=t=>({id:uid(),title:t,mode:'fit',ids:[]});
 let dirH=null,mode='',dirtyP=new Set,goneF=new Set,dw=false,db,items=new Map,projs=[],st=null,view='home',past=[],fut=[],urls=new Map,pick=null,ready=false,dirty=new Set,gone=new Set,saveT,gcT,mute=0,sT,drag=null,ip=null,fsId=null,fpush=false,lkm=false,lw=0,busy=0,lastScrollT=0,thumbs=new Map(),turls=new Map(),tfail=new Set();
-const root=$('#cols'),lab=$('#state'),col=id=>st.cols.find(c=>c.id===id);
+const root=$('#cols'),lab=$('#state'),col=id=>st.cols.find(c=>c.id===id),sel=new Set;
 const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const url=id=>{let u=urls.get(id);if(!u){u=URL.createObjectURL(items.get(id).blob);urls.set(id,u)}return u};
 function toast(m,undoFn){$('#tm').textContent=m;const t=$('#toast');t.hidden=false;$('#tu').hidden=!undoFn;$('#tu').onclick=()=>{undoFn();t.hidden=true};clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,4000)}
@@ -221,7 +230,7 @@ e.innerHTML='<header><input class="t" maxlength="40" aria-label="Column name"><b
 const t=e.querySelector('.t');t.value=c.title;t.onchange=()=>{c.title=t.value.trim()||'Untitled';t.value=c.title;save()};t.onkeydown=k=>{if(k.key==='Enter')t.blur()};
 e.querySelector('.list').append(...c.ids.map(id=>itEl(c,id)).filter(Boolean));return e}
 function setIO(){ios.forEach(o=>o.disconnect());ios=[];for(const n of cn()){const ob=mkIO(lkm?root:scr(n),lkm);n.querySelectorAll('.it:not(.tx)').forEach(ob)}}
-function render(keep=true){if(keep)capture();if(!st)return;ios.forEach(o=>o.disconnect());ios=[];edits.clear();root.style.setProperty('--n',st.cols.length);if(fsId&&!col(fsId))dropFs();root.classList.toggle('fsx',!!fsId);root.replaceChildren(...st.cols.map(colEl));if(!FS){const ts=[...root.querySelectorAll('textarea')];ts.forEach(t=>t.style.height='auto');ts.forEach(t=>t.style.height=t.scrollHeight+'px')}restore();lkUI();setIO();clearTimeout(bgT);bgT=setTimeout(bgGo,400)}
+function render(keep=true){if(keep)capture();if(!st)return;ios.forEach(o=>o.disconnect());ios=[];edits.clear();root.style.setProperty('--n',st.cols.length);if(fsId&&!col(fsId))dropFs();root.classList.toggle('fsx',!!fsId);root.replaceChildren(...st.cols.map(colEl));if(sel.size){const have=new Set(st.cols.flatMap(c=>c.ids));for(const i of [...sel])if(!have.has(i))sel.delete(i)}selUI();if(!FS){const ts=[...root.querySelectorAll('textarea')];ts.forEach(t=>t.style.height='auto');ts.forEach(t=>t.style.height=t.scrollHeight+'px')}restore();lkUI();setIO();clearTimeout(bgT);bgT=setTimeout(bgGo,400)}
 /* adding */
 const dims=f=>new Promise(r=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{r([i.naturalWidth||4,i.naturalHeight||3]);URL.revokeObjectURL(u)};i.onerror=()=>{r([4,3]);URL.revokeObjectURL(u)};i.src=u});
 async function addFiles(cid,files,at){files=[...files].filter(f=>f.type.startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|svg|avif|heic|heif)$/i.test(f.name));if(!files.length)return toast('Choose image files');const out=[];let n=0;busy++;try{
@@ -254,8 +263,8 @@ const pointMenu=(x,y,list)=>menu({getBoundingClientRect:()=>({bottom:y,right:x+2
 /* copy / paste: long-press an item -> Copy; long-press another -> Paste below it (clipboard survives project switches) */
 let clip=null;
 function pasteAfter(id){if(!clip)return;const c=st.cols.find(x=>x.ids.includes(id));if(!c)return;const n={...clip,id:uid()};items.set(n.id,n);dirty.add(n.id);commit(()=>c.ids.splice(c.ids.indexOf(id)+1,0,n.id));toast('Pasted below',undo)}
-const itemMenu=(id,x,y)=>{const it=items.get(id);if(!it)return;const tx=it.type==='text',l=[[tx?'Copy text':'Copy image',()=>{clip={...it};delete clip.id;toast(tx?'Text copied — long-press another item to paste':'Image copied — long-press another item to paste')}]];
-l.push(['Paste',()=>{const c=st.cols.find(x=>x.ids.includes(id));if(c)pasteBox(c.id,c.ids.indexOf(id)+1)}]);if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteAfter(id)]);l.push([tx?'Delete text block':'Delete image',()=>delItem(id),1]);pointMenu(x,y,l)};
+const itemMenu=(id,x,y)=>{const it=items.get(id);if(!it)return;const tx=it.type==='text',l=[[sel.has(id)?'Deselect':'Select',()=>toggleSel(id)],[tx?'Copy text':'Copy image',()=>{clip={...it};delete clip.id;toast(tx?'Text copied — long-press another item to paste':'Image copied — long-press another item to paste')}]];
+l.push(['Paste',()=>{const c=st.cols.find(x=>x.ids.includes(id));if(c)pasteBox(c.id,c.ids.indexOf(id)+1)}]);if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteAfter(id)]);{const cc=st.cols.find(k=>k.ids.includes(id));if(cc&&cc.ids.length>1)l.push(['Select all in this column',()=>{cc.ids.forEach(i=>sel.add(i));selUI()}])}l.push([tx?'Delete text block':'Delete image',()=>delItem(id),1]);pointMenu(x,y,l)};
 /* whole-page zoom is native (pinch). While zoomed, scrolling chains out of a column so the page can be moved anywhere */
 const vv=window.visualViewport,zoomed=()=>(vv?.scale||1)>1.01,holdOK=()=>!(st&&st.lk)&&!zoomed();
 if(vv){let f=0;vv.addEventListener('resize',()=>{lastScrollT=performance.now();if(f)return;f=requestAnimationFrame(()=>{f=0;document.documentElement.classList.toggle('zm',vv.scale>1.01)})});vv.addEventListener('scroll',()=>{lastScrollT=performance.now()},{passive:true})}
@@ -298,7 +307,7 @@ if(k==='drag'){endDrag(true);return}
 g=null;
 if(k==='arm'){el.classList.remove('lift');e.cancelable&&e.preventDefault();if(holdOK())itemMenu(id,x,y)}
 else if(k==='pend'){e.cancelable&&e.preventDefault();tap(el,id)}}
-function tap(el,id){const it=items.get(id);if(!it)return;if(it.type==='text'){beginEdit(el);return}
+function tap(el,id){const it=items.get(id);if(!it)return;if(sel.size){toggleSel(id);return}if(it.type==='text'){beginEdit(el);return}
 if(zoomed()){toast('Pinch out to normal size to open the full-screen viewer');return}
 const c=col(el.closest('.col').dataset.id);if(c)openV(c.ids.filter(i=>items.get(i)?.type==='img'),id)}
 /* reorder by dragging (any column, any position) */
@@ -371,6 +380,42 @@ document.addEventListener('touchend',e=>{if(!eg)return;const w=eg;clearTimeout(w
 if(w.k==='arm'){holdOff();w.c.classList.remove('pz');if(e.cancelable)e.preventDefault();if(!zoomed())pasteMenu(w.c.dataset.id,w.x0,w.y0,idxAt(w.c.querySelector('.list'),w.y0))}},{passive:false});
 document.addEventListener('touchcancel',eCancel);
 root.addEventListener('scroll',e=>{if(eg&&(eg.k==='pend'||eg.k==='arm')&&(e.target===eg.sc||e.target===root)){clearTimeout(eg.timer);if(eg.k==='arm'){holdOff();eg.c.classList.remove('pz')}eg.k='scroll'}},true);
+/* ── selection: long-press an item -> Select; then tap items to add / remove. ⋮ menu shows Share / Delete for the selection ── */
+function selUI(){const n=sel.size;root.classList.toggle('selm',n>0);root.querySelectorAll('.it').forEach(e=>e.classList.toggle('sel',sel.has(e.dataset.id)));const m=$('#menu');if(m){if(n){m.dataset.n=n;m.title=n+' selected — open for Share / Delete'}else{delete m.dataset.n;m.title='Project menu'}}}
+function toggleSel(id){sel.has(id)?sel.delete(id):sel.add(id);selUI()}
+function clearSel(){if(sel.size){sel.clear();selUI()}}
+const selOrder=()=>st?st.cols.flatMap(c=>c.ids).filter(i=>sel.has(i)):[];
+async function delSel(){const ids=selOrder();if(!ids.length)return;if(!await cf(`Delete ${ids.length} selected item${ids.length>1?'s':''}?`,'They will be removed from their columns. You can undo right after.'))return;const d=new Set(ids);sel.clear();commit(()=>st.cols.forEach(c=>{c.ids=c.ids.filter(x=>!d.has(x))}));toast(`Deleted ${ids.length} item${ids.length>1?'s':''}`,undo)}
+function shareSel(){const ids=selOrder();if(ids.length)shareIds(ids,ids.length+' selected')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sel.size&&view==='proj'&&!document.querySelector('dialog[open],.mn')&&$('#v').hidden)clearSel()});
+/* ── column reorder: long-press a column header, drag it over another column, let go -> the two columns swap places ── */
+let hg=null;
+const hdrOK=()=>!zoomed()&&!fsId&&view==='proj';
+function hDown(e,touch,pts){hStop();if(touch&&pts.length>1)return;const h=e.target.closest?.('.col>header');if(!h||!root.contains(h)||e.target.closest('button'))return;
+hg={h,c:h.parentElement,k:'pend',x0:pts[0][0],y0:pts[0][1],px:pts[0][0],py:pts[0][1],touch};hg.timer=setTimeout(hArm,450)}
+function hArm(){if(!hg||hg.k!=='pend')return;if(performance.now()-lastScrollT<150){hg.k='scroll';return}if(!hdrOK()){hg.k='ignore';return}
+hg.k='arm';hg.h.classList.add('harm');try{document.activeElement?.blur?.();getSelection()?.removeAllRanges()}catch{}holdOn();navigator.vibrate?.(12)}
+function hMove(pts,e,touch){if(!hg)return;const x=pts[0][0],y=pts[0][1],far=Math.hypot(x-hg.x0,y-hg.y0)>(touch?6:5);
+if(hg.k==='pend'){if(far){clearTimeout(hg.timer);hg.k='scroll'}return}
+if(hg.k==='arm'&&far)hStartDrag(x,y);
+if(hg.k==='drag'){hg.px=x;hg.py=y;hGhost()}}
+function hStartDrag(x,y){hg.k='drag';hg.px=x;hg.py=y;hg.c.classList.add('cdrag');const gh=document.createElement('div'),c=col(hg.c.dataset.id);gh.className='ghost cg';gh.textContent=(c?c.title:'Column')+(c?' · '+c.ids.length:'');document.body.append(gh);hg.gh=gh;hg.gw=gh.offsetWidth;hg.gh2=gh.offsetHeight;hg.tc=null;hGhost();hg.raf=requestAnimationFrame(hLoop)}
+function hGhost(){hg.gh.style.transform=`translate(${hg.px-hg.gw/2}px,${hg.py-hg.gh2/2}px) scale(1.04)`;hCue()}
+function hCue(){root.querySelectorAll('.cover').forEach(n=>n.classList.remove('cover'));hg.tc=null;const t=document.elementFromPoint(hg.px,hg.py),c=t?.closest?.('.col');if(c&&root.contains(c)&&c!==hg.c){c.classList.add('cover');hg.tc=c.dataset.id}}
+function hLoop(){if(!hg||hg.k!=='drag')return;const rr=root.getBoundingClientRect();if(hg.px<rr.left+40)root.scrollLeft-=14;else if(hg.px>rr.right-40)root.scrollLeft+=14;hCue();hg.raf=requestAnimationFrame(hLoop)}
+function hEnd(drop){const w=hg;hg=null;if(!w)return;clearTimeout(w.timer);cancelAnimationFrame(w.raf);w.gh?.remove();w.c.classList.remove('cdrag');w.h.classList.remove('harm');root.querySelectorAll('.cover').forEach(n=>n.classList.remove('cover'));holdOff();if(drop&&w.tc)swapCols(w.c.dataset.id,w.tc)}
+function hStop(){if(!hg)return;if(hg.k==='drag'||hg.k==='arm')hEnd(false);else{clearTimeout(hg.timer);hg=null}}
+function swapCols(a,b){const i=st.cols.findIndex(c=>c.id===a),j=st.cols.findIndex(c=>c.id===b);if(i<0||j<0||i===j)return;commit(()=>{const t=st.cols[i];st.cols[i]=st.cols[j];st.cols[j]=t});toast('Columns swapped',undo)}
+root.addEventListener('touchstart',e=>hDown(e,true,tp(e)),{passive:true});
+document.addEventListener('touchmove',e=>{if(hg)hMove(tp(e),e,true)},{passive:true});
+document.addEventListener('touchend',e=>{if(!hg)return;if(e.touches.length){hStop();return}const k=hg.k;if(k==='drag'||k==='arm'){if(e.cancelable)e.preventDefault();hEnd(k==='drag')}else{clearTimeout(hg.timer);hg=null}},{passive:false});
+document.addEventListener('touchcancel',hStop);
+root.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.button!==0)return;hDown(e,false,[[e.clientX,e.clientY]])});
+addEventListener('pointermove',e=>{if(e.pointerType!=='touch'&&hg)hMove([[e.clientX,e.clientY]],e,false)});
+addEventListener('pointerup',e=>{if(e.pointerType==='touch'||!hg)return;const k=hg.k;if(k==='drag'||k==='arm')hEnd(k==='drag');else{clearTimeout(hg.timer);hg=null}});
+addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')hStop()});
+root.addEventListener('contextmenu',e=>{if(hg&&(hg.k==='arm'||hg.k==='drag')&&e.target.closest('.col>header'))e.preventDefault()});
+root.addEventListener('scroll',()=>{if(hg&&hg.k==='pend'){clearTimeout(hg.timer);hg.k='scroll'}},true);
 /* viewer (gallery style: swipe left/right between photos, swipe up/down to close, back button closes) */
 const V=$('#v'),VS=$('#vs'),VT=$('#vt'),VB=$('.vb');let vl=[],vi=0,vsl=[],vz={s:1,x:0,y:0},vbusy=false,vpush=false,vP=new Map,vg=null,vlast=null,vtok=0;
 const SW=()=>VS.clientWidth,SH=()=>VS.clientHeight;
@@ -438,12 +483,12 @@ if('serviceWorker'in navigator&&/^https?:/.test(location.protocol))navigator.ser
 const app=$('.app');
 function ask(title,val='',must){return new Promise(ok=>{const d=$('#nd'),i=$('#ni');$('#nt').textContent=title;i.value=val;$('#nc').hidden=!!must;let done=false;const fin=v=>{if(done)return;done=true;d.close();ok(v)};$('#no').onclick=()=>fin(i.value.trim()||null);$('#nc').onclick=()=>fin(null);i.onkeydown=e=>{if(e.key==='Enter')fin(i.value.trim()||null)};d.oncancel=e=>{if(must)e.preventDefault();else fin(null)};d.showModal();i.focus();i.select()})}
 const newP=n=>{const p={id:uid(),name:n,cols:[mk('Column 1'),mk('Column 2')],x:0,sc:{},u:Date.now()};projs.unshift(p);dirtyP.add(p.id);save(1);return p};
-function openP(id){settleEdits();capture();dropFs();st=projs.find(p=>p.id===id);past=[];fut=[];view='proj';app.dataset.v='proj';$('#pn').textContent=document.title=st.name;render(false);restore();save(1)}
-function goHome(){settleEdits();capture();dropFs();st=null;past=[];fut=[];view='home';app.dataset.v='home';$('#pn').textContent=document.title='Side-by-side Reader';renderHome();save(1)}
+function openP(id){sel.clear();settleEdits();capture();dropFs();st=projs.find(p=>p.id===id);past=[];fut=[];view='proj';app.dataset.v='proj';$('#pn').textContent=document.title=st.name;render(false);restore();save(1)}
+function goHome(){sel.clear();settleEdits();capture();dropFs();st=null;past=[];fut=[];view='home';app.dataset.v='home';$('#pn').textContent=document.title='Side-by-side Reader';renderHome();save(1)}
 function renderHome(){const l=$('#pl');$('#pe').hidden=projs.length>0;l.replaceChildren(...projs.map(p=>{const n=p.cols.reduce((a,c)=>a+c.ids.length,0),e=document.createElement('div');e.className='pc';e.innerHTML='<div><b></b><small></small></div><button class="i" aria-label="Project menu"><svg class="ic"><use href="#i-dots"/></svg></button>';e.querySelector('b').textContent=p.name;e.querySelector('small').textContent=`${p.cols.length} columns · ${n} items`;e.onclick=ev=>{if(!ev.target.closest('button'))openP(p.id)};e.querySelector('button').onclick=ev=>menu(ev.currentTarget,projMenu(p));return e}))}
 function dup(p){const c=JSON.parse(JSON.stringify(p));c.id=uid();c.name=p.name+' copy';c.sc={};c.u=Date.now();delete c.file;for(const k of c.cols){k.id=uid();k.ids=k.ids.map(id=>{const it=items.get(id);if(it?.type==='text'){const n={...it,id:uid()};items.set(n.id,n);dirty.add(n.id);return n.id}return id})}projs.unshift(c);dirtyP.add(c.id);save(1);view==='home'?renderHome():toast('Duplicated as “'+c.name+'”')}
 const projMenu=p=>[['Open',()=>openP(p.id)],['Rename',async()=>{const n=await ask('Rename project',p.name);if(n){p.name=n;p.u=Date.now();dirtyP.add(p.id);save(1);st===p?$('#pn').textContent=document.title=n:renderHome()}}],['Duplicate',()=>dup(p)],['Share…',()=>shareP(p)],['Save as zip file',()=>shareZip(p)],['Delete project',async()=>{if(await cf(`Delete “${p.name}”?`,'All its columns and images will be removed. This can’t be undone.')){projs=projs.filter(x=>x!==p);goneF.add(p.file||fname(p));dirtyP.delete(p.id);if(st===p)goHome();else renderHome();save();clearTimeout(gcT);gcT=setTimeout(gc,500)}},1]];
-const topMenu=()=>{const pm=projMenu(st).slice(1),del=pm.pop();return[['Add column',addCol],['Import project (zip)…',importPick],...(past.length?[['Undo',undo]]:[]),...(fut.length?[['Redo',redo]]:[]),...pm,...(ip?[['Install app',inst]]:[]),...(canDir()?[[dirH?'Change storage path…':'Set storage path…',changePath]]:[]),['All projects',goHome],del]};
+const topMenu=()=>{const pm=projMenu(st).slice(1),del=pm.pop();return[...(sel.size?[[`Share selected (${sel.size})`,shareSel],[`Delete selected (${sel.size})`,delSel,1],['Clear selection',clearSel]]:[]),['Add column',addCol],['Import project (zip)…',importPick],...(past.length?[['Undo',undo]]:[]),...(fut.length?[['Redo',redo]]:[]),...pm,...(ip?[['Install app',inst]]:[]),...(canDir()?[[dirH?'Change storage path…':'Set storage path…',changePath]]:[]),['All projects',goHome],del]};
 function closeMenu(){const m=document.querySelector('.mn');if(m){removeEventListener('pointerdown',m._h,true);m.remove()}}
 function menu(a,list){const ex=document.querySelector('.mn');if(ex){const same=ex._a===a;closeMenu();if(same)return}
 const m=document.createElement('div');m.className='mn';m._a=a;for(const[t,f,d]of list){const b=document.createElement('button');b.textContent=t;if(d)b.className='dg';b.onclick=()=>{closeMenu();f()};m.append(b)}document.body.append(m);const r=a.getBoundingClientRect();m.style.top=Math.max(8,Math.min(r.bottom+4,innerHeight-m.offsetHeight-8))+'px';m.style.left=Math.max(8,Math.min(r.right-m.offsetWidth,innerWidth-m.offsetWidth-8))+'px';

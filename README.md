@@ -38,6 +38,14 @@ share sheet; desktop: double-click / Open with) or uses ⋮ -> "Add project zip 
 - **Long-press an image or text block** (unlocked, normal zoom): the menu has Copy, **Paste** (inserts the clipboard right below that item), Delete, and "Paste copied image/text" if you used Copy in the app.
 - Desktop: right-click for the same menus, or press Ctrl+V to paste into the column you last clicked.
 
+## Reorder columns
+Long-press a **column header** (the title bar, not its buttons) until it vibrates / highlights, then drag it over any other column and let go. The two columns **swap places**, each keeping all its contents. Drag near the left/right edge to scroll sideways. Undo is offered right after.
+
+## Select, share and delete several items
+- Long-press an image or text block -> **Select** (also **Select all in this column**).
+- Once something is selected, a tap on any item adds or removes it (it no longer opens the viewer / editor). Selected items show a tick; the ⋮ button shows how many are selected. Items can be picked from any column.
+- Open ⋮ (project menu): **Share selected (n)** opens the phone's share sheet with all selected images (and text); **Delete selected (n)** asks to confirm, then removes them (undo available); **Clear selection** ends it. Esc also clears it on desktop. These entries only appear while something is selected.
+
 ## Long-press
 A long-press (about half a second) only counts when your finger stays still and nothing is scrolling. Holding the screen while you scroll, or touching a list that is still gliding, is never treated as a long-press and never opens the menu.
 
