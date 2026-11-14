@@ -44,7 +44,7 @@ Long-press a **column header** (the title bar, not its buttons) until it vibrate
 ## Select, share and delete several items
 - Long-press an image or text block -> **Select** (also **Select all in this column**).
 - Once something is selected, a tap on any item adds or removes it (it no longer opens the viewer / editor). Selected items show a tick; the ⋮ button shows how many are selected. Items can be picked from any column.
-- Open ⋮ (project menu): **Share selected (n)** opens the phone's share sheet with all selected images (and text); **Delete selected (n)** asks to confirm, then removes them (undo available); **Clear selection** ends it. Esc also clears it on desktop. These entries only appear while something is selected.
+- Open ⋮ (project menu): **Share selected (n)** opens the phone's share sheet with all selected images (and text); **Delete selected (n)** asks to confirm, then removes them (undo available); **Clear selection** ends it. The phone Back button (or Esc on desktop) also clears the selection and returns everything to normal. These entries only appear while something is selected.
 
 ## Long-press
 A long-press (about half a second) only counts when your finger stays still and nothing is scrolling. Holding the screen while you scroll, or touching a list that is still gliding, is never treated as a long-press and never opens the menu.
