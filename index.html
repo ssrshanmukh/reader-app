@@ -56,6 +56,10 @@ dialog h2{margin:0 0 4px;font-size:16px}dialog p{margin:0 0 10px;color:var(--mu)
 .mn{position:fixed;z-index:50;background:var(--sf);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 24px #0004;padding:4px;min-width:200px}
 .mn button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:8px}.mn button:hover{background:var(--as)}.mn .dg{color:var(--dg)}
 #fl,#pe{color:var(--mu);font-size:12px;margin:12px 2px}#fix{border-color:var(--dg);color:var(--dg)}.app[data-v=proj] #hm{display:none}
+#pbox{min-height:64px;max-height:30vh;overflow:auto;border:1px dashed var(--ac);border-radius:9px;padding:10px;outline:none;word-break:break-word;margin-bottom:8px}#pbox:empty:before{content:attr(data-ph);color:var(--mu)}
+#pq{display:flex;flex-wrap:wrap;gap:6px;max-height:34vh;overflow:auto;margin-bottom:2px}.pi{position:relative;width:64px;height:64px;border:1px solid var(--ln);border-radius:8px;overflow:hidden;background:var(--bg);font-size:10px}.pi img{width:100%;height:100%;object-fit:cover;display:block}.pi .pt2{display:block;padding:4px;line-height:1.2;word-break:break-word;max-height:100%;overflow:hidden}
+.pi b{position:absolute;left:2px;top:2px;background:#000a;color:#fff;border-radius:6px;padding:0 5px;font-size:10px}.pi button{position:absolute;right:2px;top:2px;width:20px;height:20px;border:0;border-radius:50%;background:#000a;color:#fff;font-size:11px;padding:0;line-height:20px}
+#pins:disabled{opacity:.5}.col.pz .sc{background:color-mix(in srgb,var(--ac) 10%,transparent)}
 dialog input{width:100%;height:40px;border:1px solid var(--ln);border-radius:9px;background:var(--bg);color:inherit;padding:0 10px;font:inherit}
 .tr{display:flex;align-items:center;gap:8px;flex:none;min-width:0}.tr small{margin:0;max-width:38vw;overflow:hidden;text-overflow:ellipsis}.pt{flex:1}
 html,body{overscroll-behavior:none}
@@ -118,6 +122,7 @@ html,body{overscroll-behavior:none}
 <div id="hv"><div class="hh"><h2>Projects</h2><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="b" id="ib" hidden>Install app</button><button class="b" id="np"><svg class="ic"><use href="#i-plus"/></svg> New project</button><button class="b" id="hm" title="More" aria-label="More"><svg class="ic"><use href="#i-dots"/></svg></button></span></div><div id="pl"></div><p id="pe" hidden>No projects yet. Tap “＋ New project”, or ⋮ → “Add project zip files”.</p><p id="fl"></p></div></main>
 <div id="v" hidden><div class="vb"><span id="vn"></span><span><button id="vp" aria-label="Previous"><svg class="ic"><use href="#i-left"/></svg></button><button id="vo" aria-label="Zoom out"><svg class="ic"><use href="#i-minus"/></svg></button><span id="vz">100%</span><button id="vi" aria-label="Zoom in"><svg class="ic"><use href="#i-plus"/></svg></button><button id="vq" aria-label="Next"><svg class="ic"><use href="#i-right"/></svg></button><button id="vc" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></span></div><div id="vs"><div id="vt"></div></div></div>
 <dialog id="cd"><h2 id="cdt"></h2><p id="cdp"></p><div class="row"><button class="b" id="cdn">Cancel</button><button class="b" id="cdy" style="background:var(--dg);border-color:var(--dg);color:#fff">Delete</button></div></dialog>
+<dialog id="pd"><h2>Paste</h2><p id="pdc"></p><div id="pbox" contenteditable="true" role="textbox" aria-label="Paste here" data-ph="Long-press here → Paste" autocapitalize="off" spellcheck="false"></div><div id="pq"></div><button class="b" id="pgo" style="text-align:center">Paste from clipboard</button><div style="display:flex;gap:6px;margin-top:10px"><button class="b" id="pcn" style="text-align:center;margin:0">Cancel</button><button class="b" id="pins" style="text-align:center;margin:0;background:var(--ac);color:#fff;border-color:var(--ac)" disabled>Insert</button></div></dialog>
 <dialog id="sh"><h2>Share</h2><p>Opens your phone or computer’s share sheet. Original files are sent, never compressed.</p><div id="shb"></div><button class="b" id="shx" style="text-align:center;margin-top:10px">Close</button></dialog>
 <div id="toast" hidden><span id="tm"></span><button id="tu">Undo</button></div>
 <dialog id="nd"><h2 id="nt"></h2><input id="ni" maxlength="40" aria-label="Project name"><div style="display:flex;gap:6px;margin-top:10px"><button class="b" id="nc" style="text-align:center">Cancel</button><button class="b" id="no" style="text-align:center;background:var(--ac);color:#fff;border-color:var(--ac)">OK</button></div></dialog>
@@ -318,7 +323,70 @@ root.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;lastTo
 addEventListener('pointermove',e=>{if(e.pointerType!=='touch')pmove([[e.clientX,e.clientY]],e,false)});
 addEventListener('pointerup',e=>{if(e.pointerType!=='touch')pup([[e.clientX,e.clientY]],e,false)});
 addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')gStop()});
-root.addEventListener('contextmenu',e=>{const el=e.target.closest('.it');if(!el||el.classList.contains('edit'))return;e.preventDefault();if(e.pointerType==='touch'||Date.now()-lastTouch<1500||!holdOK())return;gStop();itemMenu(el.dataset.id,e.clientX,e.clientY)});
+root.addEventListener('contextmenu',e=>{const el=e.target.closest('.it');if(!el){const c=emptyHit(e.target);if(c){e.preventDefault();if(e.pointerType==='touch'||Date.now()-lastTouch<1500||zoomed())return;gStop();pasteMenu(c.dataset.id,e.clientX,e.clientY,idxAt(c.querySelector('.list'),e.clientY))}return}if(el.classList.contains('edit'))return;e.preventDefault();if(e.pointerType==='touch'||Date.now()-lastTouch<1500||!holdOK())return;gStop();itemMenu(el.dataset.id,e.clientX,e.clientY)});
+/* ── paste: long-press empty column space, let go -> Paste menu. Any number of images / texts, kept in the order pasted ── */
+let lastCol=null,eg=null;
+const isImgF=f=>f&&((f.type||'').startsWith('image/')||/\.(png|jpe?g|gif|webp|bmp|svg|avif|heic|heif)$/i.test(f.name||''));
+const emptyHit=t=>{const c=t&&t.closest?t.closest('.col'):null;if(!c||!root.contains(c)||t.closest('.it,header,input,textarea,button'))return null;return c};
+const extOf=t=>((t.split('/')[1]||'png').replace('+xml','').replace('jpeg','jpg'));
+let pk=0;const pname=t=>'pasted-'+Date.now().toString(36)+'-'+(++pk)+'.'+extOf(t||'image/png');
+async function addEntries(cid,es,at){if(!es.length)return;if(!col(cid)){toast('That column no longer exists');return}const out=[];let n=0;busy++;try{
+for(const e of es){if(e.text!=null){const it={id:uid(),type:'text',text:e.text};items.set(it.id,it);dirty.add(it.id);out.push(it.id)}
+else{lab.textContent=`Adding ${++n}…`;const d=await dims(e.f),it={id:uid(),type:'img',name:e.f.name,blob:e.f,w:d[0],h:d[1]};items.set(it.id,it);dirty.add(it.id);out.push(it.id)}}
+commit(()=>{const c=col(cid);if(c)c.ids.splice(Math.min(at??c.ids.length,c.ids.length),0,...out)});
+toast(`Pasted ${out.length} item${out.length>1?'s':''}`,undo)}finally{busy--}}
+/* read the system clipboard (needs a tap = user gesture; Chrome may show its own small "Paste" bubble) */
+async function readSys(){const es=[],cb=navigator.clipboard;
+if(cb&&cb.read){for(const ci of await cb.read()){const t=ci.types.find(x=>x.startsWith('image/'));
+if(t){const b=await ci.getType(t);es.push({f:new File([b],pname(t),{type:t})});continue}
+if(ci.types.includes('text/plain')){const tx=await(await ci.getType('text/plain')).text();if(tx.trim())es.push({text:tx})}}}
+else if(cb&&cb.readText){const tx=await cb.readText();if(tx.trim())es.push({text:tx})}
+else throw new Error('unsupported');return es}
+async function pasteDirect(cid,at){let es=[];try{es=await readSys()}catch(e){openPaste(cid,at);return}
+if(!es.length){openPaste(cid,at);return}await addEntries(cid,es,at)}
+function pasteClipAt(cid,at){if(!clip)return;const c=col(cid);if(!c)return;const n={...clip,id:uid()};items.set(n.id,n);dirty.add(n.id);commit(()=>c.ids.splice(Math.min(at,c.ids.length),0,n.id));toast('Pasted',undo)}
+function pasteMenu(cid,x,y,at){const l=[['Paste',()=>pasteDirect(cid,at)],['Paste several…',()=>openPaste(cid,at)]];
+if(clip)l.push([clip.type==='text'?'Paste copied text':'Paste copied image',()=>pasteClipAt(cid,at)]);pointMenu(x,y,l)}
+/* "Paste several" sheet: paste as many times as you like; everything is inserted in the order it was pasted */
+const PD=$('#pd'),PB=$('#pbox'),PQ=$('#pq'),PI=$('#pins');let pq=[],pcid=null,pat=0;
+function pClear(){pq.forEach(q=>q.u&&URL.revokeObjectURL(q.u));pq=[];PB.textContent='';pRender()}
+function pRender(){PQ.replaceChildren(...pq.map((q,i)=>{const e=document.createElement('div');e.className='pi';
+e.innerHTML=(q.k==='img'?'<img alt="">':'<span class="pt2"></span>')+'<b>'+(i+1)+'</b><button aria-label="Remove" title="Remove">✕</button>';
+if(q.k==='img')e.firstChild.src=q.u;else e.firstChild.textContent=q.text.slice(0,60);
+e.querySelector('button').onclick=()=>{if(q.u)URL.revokeObjectURL(q.u);pq.splice(pq.indexOf(q),1);pRender()};return e}));
+const n=pq.length+(PB.textContent.trim()?1:0);PI.textContent=n?`Insert ${n}`:'Insert';PI.disabled=!n;
+$('#pdc').textContent=pq.length?`${pq.length} ready · keep pasting to add more`:'Long-press the box below → Paste. Repeat for each image or text. They are added in the order you paste; there is no limit.'}
+function pAddFile(f){if(!isImgF(f))return false;pq.push({k:'img',f,u:URL.createObjectURL(f)});return true}
+function pAddText(t){if(t&&t.trim())pq.push({k:'txt',text:t})}
+function pFromData(cd){let fs=[...(cd.files||[])];if(!fs.length)for(const it of cd.items||[])if(it.kind==='file'){const f=it.getAsFile();if(f)fs.push(f)}
+fs=fs.filter(isImgF).map(f=>f.name&&!/^image\.\w+$/i.test(f.name)?f:new File([f],pname(f.type),{type:f.type}));return fs}
+PB.addEventListener('paste',e=>{const cd=e.clipboardData;if(!cd)return;const fs=pFromData(cd),tx=cd.getData('text/plain');
+if(fs.length){e.preventDefault();fs.forEach(pAddFile);pRender()}else if(tx&&tx.trim()){e.preventDefault();pAddText(tx);pRender()}});
+/* fallback for keyboards that drop the image straight into the box */
+PB.addEventListener('input',async()=>{const ims=[...PB.querySelectorAll('img')];for(const im of ims){try{const b=await(await fetch(im.src)).blob();if(b.type.startsWith('image/'))pAddFile(new File([b],pname(b.type),{type:b.type}))}catch{}im.remove()}pRender()});
+$('#pgo').onclick=async()=>{try{const es=await readSys();es.forEach(x=>x.text!=null?pAddText(x.text):pAddFile(x.f));if(!es.length)toast('Clipboard is empty')}catch{toast('Clipboard access was blocked — long-press the box and choose Paste')}pRender()};
+$('#pcn').onclick=()=>PD.close();
+PI.onclick=()=>{const tx=PB.textContent.trim(),es=pq.map(q=>q.k==='img'?{f:q.f}:{text:q.text});if(tx)es.push({text:tx});const c=pcid,a=pat;PD.close();addEntries(c,es,a)};
+PD.addEventListener('close',()=>{pq.forEach(q=>q.u&&URL.revokeObjectURL(q.u));pq=[];PB.textContent=''});
+PB.addEventListener('keyup',pRender);
+function openPaste(cid,at){pcid=cid;pat=at;pClear();PD.showModal();setTimeout(()=>PB.focus(),60)}
+/* Ctrl+V on desktop: paste straight into the last column you touched */
+document.addEventListener('paste',e=>{if(view!=='proj'||!st||!e.clipboardData||e.target.isContentEditable||/INPUT|TEXTAREA/.test(e.target.tagName)||document.querySelector('dialog[open]'))return;
+const fs=pFromData(e.clipboardData),tx=e.clipboardData.getData('text/plain');if(!fs.length&&!tx.trim())return;e.preventDefault();
+const cid=(lastCol&&col(lastCol)?lastCol:st.cols[0]&&st.cols[0].id);if(!cid)return;addEntries(cid,fs.length?fs.map(f=>({f})):[{text:tx}])});
+/* long-press on empty space (finger still, nothing scrolling) and release -> menu */
+root.addEventListener('pointerdown',e=>{const c=e.target.closest&&e.target.closest('.col');if(c)lastCol=c.dataset.id},true);
+function eCancel(){if(!eg)return;clearTimeout(eg.timer);if(eg.k==='arm'){holdOff();eg.c.classList.remove('pz')}eg=null}
+function eArm(){if(!eg||eg.k!=='pend')return;if(Math.abs(eg.sc.scrollTop-eg.s0)>.5||performance.now()-lastScrollT<150){eg.k='scroll';return}
+if(zoomed()){eg.k='ignore';return}eg.k='arm';eg.c.classList.add('pz');holdOn();navigator.vibrate?.(12)}
+root.addEventListener('touchstart',e=>{eCancel();if(e.touches.length!==1)return;const c=emptyHit(e.target);if(!c)return;const t=e.touches[0],sc=lkm?root:c.querySelector('.sc');
+eg={c,x0:t.clientX,y0:t.clientY,k:'pend',sc,s0:sc.scrollTop};if(performance.now()-lastScrollT<220){eg.k='scroll';return}eg.timer=setTimeout(eArm,450)},{passive:true});
+document.addEventListener('touchmove',e=>{if(!eg)return;if(e.touches.length>1){eCancel();return}const t=e.touches[0],far=Math.hypot(t.clientX-eg.x0,t.clientY-eg.y0);
+if(eg.k==='pend'&&far>6){clearTimeout(eg.timer);eg.k='scroll'}else if(eg.k==='arm'&&far>14)eCancel()},{passive:true});
+document.addEventListener('touchend',e=>{if(!eg)return;const w=eg;clearTimeout(w.timer);if(e.touches.length){eCancel();return}eg=null;
+if(w.k==='arm'){holdOff();w.c.classList.remove('pz');if(e.cancelable)e.preventDefault();if(!zoomed())pasteMenu(w.c.dataset.id,w.x0,w.y0,idxAt(w.c.querySelector('.list'),w.y0))}},{passive:false});
+document.addEventListener('touchcancel',eCancel);
+root.addEventListener('scroll',e=>{if(eg&&(eg.k==='pend'||eg.k==='arm')&&(e.target===eg.sc||e.target===root)){clearTimeout(eg.timer);if(eg.k==='arm'){holdOff();eg.c.classList.remove('pz')}eg.k='scroll'}},true);
 /* viewer (gallery style: swipe left/right between photos, swipe up/down to close, back button closes) */
 const V=$('#v'),VS=$('#vs'),VT=$('#vt'),VB=$('.vb');let vl=[],vi=0,vsl=[],vz={s:1,x:0,y:0},vbusy=false,vpush=false,vP=new Map,vg=null,vlast=null,vtok=0;
 const SW=()=>VS.clientWidth,SH=()=>VS.clientHeight;
