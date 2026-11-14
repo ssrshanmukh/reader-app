@@ -33,10 +33,10 @@ share sheet; desktop: double-click / Open with) or uses ⋮ -> "Add project zip 
 
 ## Paste (images & text, any number)
 - **Long-press empty space** in a column (between items, or below the last one), keep still, then **let go**. A menu appears:
-  - **Paste** - takes whatever is on your clipboard (image or text) and inserts it at that spot. Chrome may show its own small "Paste" bubble the first time; tap it.
-  - **Paste several…** - opens a box. Long-press it -> Paste, again and again (Gboard's clipboard list works too). Every image / text you paste appears as a numbered thumbnail, in the order you pasted it, with ✕ to remove one. Tap **Insert N** and they all go into the column in that order. There is no limit on the number of images.
+  - **Paste** - takes everything on your clipboard (any number of images, or text) and inserts it straight into the column at that spot, in order. Chrome may show its own small "Paste" bubble the first time; tap it.
   - **Paste copied image/text** - only shown if you used Copy on an item inside the app.
-- Desktop: right-click empty space for the same menu, or press Ctrl+V to paste into the column you last clicked.
+- **Long-press an image or text block** (unlocked, normal zoom): the menu has Copy, **Paste** (inserts the clipboard right below that item), Delete, and "Paste copied image/text" if you used Copy in the app.
+- Desktop: right-click for the same menus, or press Ctrl+V to paste into the column you last clicked.
 
 ## Long-press
 A long-press (about half a second) only counts when your finger stays still and nothing is scrolling. Holding the screen while you scroll, or touching a list that is still gliding, is never treated as a long-press and never opens the menu.
